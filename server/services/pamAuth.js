@@ -13,33 +13,14 @@ class PAMAuthService {
    * @returns {Promise<boolean>} True if authentication succeeds
    */
   async authenticate(username, password) {
-    return new Promise((resolve, reject) => {
-      // Method 1: Try using su command
-      this.authenticateWithSu(username, password)
-        .then(result => {
-          if (result) {
-            resolve(true);
-            return;
-          }
-          // Method 2: Try using sudo if available
-          return this.authenticateWithSudo(username, password);
-        })
-        .then(result => {
-          if (result) {
-            resolve(true);
-            return;
-          }
-          // Method 3: Try using login command
-          return this.authenticateWithLogin(username, password);
-        })
-        .then(result => {
-          resolve(result);
-        })
-        .catch(error => {
-          console.error('PAM authentication error:', error);
-          resolve(false);
-        });
-    });
+    try {
+      // Only use su command for PAM authentication
+      const result = await this.authenticateWithSu(username, password);
+      return result;
+    } catch (error) {
+      console.error('PAM authentication error:', error);
+      return false;
+    }
   }
 
   /**
@@ -84,99 +65,20 @@ class PAMAuthService {
     });
   }
 
-  /**
-   * Authenticate using sudo command
-   */
-  async authenticateWithSudo(username, password) {
-    return new Promise((resolve) => {
-      const child = spawn('sudo', ['-S', '-u', username, 'true'], {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
 
-      let output = '';
-      let error = '';
-
-      child.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      child.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-
-      child.on('close', (code) => {
-        resolve(code === 0);
-      });
-
-      child.on('error', () => {
-        resolve(false);
-      });
-
-      // Send password to stdin
-      child.stdin.write(password + '\n');
-      child.stdin.end();
-
-      // Timeout after 5 seconds
-      setTimeout(() => {
-        if (!child.killed) {
-          child.kill();
-          resolve(false);
-        }
-      }, 5000);
-    });
-  }
-
-  /**
-   * Authenticate using login command (simulated)
-   */
-  async authenticateWithLogin(username, password) {
-    return new Promise((resolve) => {
-      // This is a fallback method that checks if the user exists
-      // Note: This doesn't actually verify the password, just checks user existence
-      const child = spawn('id', [username], {
-        stdio: ['pipe', 'pipe', 'pipe']
-      });
-
-      child.on('close', (code) => {
-        // If user exists, we'll assume authentication for now
-        // In a real implementation, you'd want to use a proper PAM module
-        resolve(code === 0);
-      });
-
-      child.on('error', () => {
-        resolve(false);
-      });
-
-      // Timeout after 3 seconds
-      setTimeout(() => {
-        if (!child.killed) {
-          child.kill();
-          resolve(false);
-        }
-      }, 3000);
-    });
-  }
 
   /**
    * Check if PAM authentication is available on this system
    */
   async isAvailable() {
     try {
-      // Check if essential commands are available
-      const commands = ['su', 'sudo', 'id'];
+      // Check if 'su' command is available (only command we need)
+      const child = spawn('which', ['su']);
+      await new Promise((resolve) => {
+        child.on('close', resolve);
+      });
 
-      for (const cmd of commands) {
-        const child = spawn('which', [cmd]);
-        await new Promise((resolve) => {
-          child.on('close', resolve);
-        });
-
-        if (child.exitCode === 0) {
-          return true;
-        }
-      }
-
-      return false;
+      return child.exitCode === 0;
     } catch (error) {
       return false;
     }
