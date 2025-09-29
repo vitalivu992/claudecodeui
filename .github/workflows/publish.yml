@@ -59,14 +59,17 @@ jobs:
       - name: Determine version
         id: version
         run: |
+          # Make scripts executable
+          chmod +x scripts/determine-version.sh scripts/update-version.sh
+          
           # Handle different trigger types
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             if [[ "${{ github.event.inputs.version_type }}" == "auto" ]]; then
               # Auto-detect version from commits
-              ./scripts/determine-version.sh
+              ./scripts/determine-version.sh >> $GITHUB_ENV
             else
               # Use manual version type
-              ./scripts/determine-version.sh --type "${{ github.event.inputs.version_type }}"
+              ./scripts/determine-version.sh --type "${{ github.event.inputs.version_type }}" >> $GITHUB_ENV
             fi
           elif [[ "${{ github.event_name }}" == "push" ]] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
             # Tag push - extract version from tag
@@ -74,10 +77,10 @@ jobs:
             echo "VERSION_TYPE=tag" >> $GITHUB_ENV
             echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
             echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
-            echo "Using existing tag version: $VERSION"
+            echo "Using existing tag version: $VERSION" >&2
           else
             # Branch push - auto-detect from commits
-            ./scripts/determine-version.sh
+            ./scripts/determine-version.sh >> $GITHUB_ENV
           fi
 
       - name: Update version and create tag

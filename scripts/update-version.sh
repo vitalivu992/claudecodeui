@@ -12,21 +12,37 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
+# Function to print colored output (to stderr in CI)
 print_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    else
+        echo -e "${BLUE}ℹ️  $1${NC}"
+    fi
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${GREEN}✅ $1${NC}" >&2
+    else
+        echo -e "${GREEN}✅ $1${NC}"
+    fi
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${YELLOW}⚠️  $1${NC}" >&2
+    else
+        echo -e "${YELLOW}⚠️  $1${NC}"
+    fi
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${RED}❌ $1${NC}" >&2
+    else
+        echo -e "${RED}❌ $1${NC}"
+    fi
 }
 
 # Function to update package.json version

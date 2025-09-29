@@ -12,21 +12,37 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# Function to print colored output
+# Function to print colored output (to stderr in CI)
 print_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${BLUE}ℹ️  $1${NC}" >&2
+    else
+        echo -e "${BLUE}ℹ️  $1${NC}"
+    fi
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${GREEN}✅ $1${NC}" >&2
+    else
+        echo -e "${GREEN}✅ $1${NC}"
+    fi
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${YELLOW}⚠️  $1${NC}" >&2
+    else
+        echo -e "${YELLOW}⚠️  $1${NC}"
+    fi
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        echo -e "${RED}❌ $1${NC}" >&2
+    else
+        echo -e "${RED}❌ $1${NC}"
+    fi
 }
 
 # Function to get commits since last tag
@@ -204,23 +220,35 @@ main() {
     print_info "Bump type: $version_type"
     print_info "New version: $new_version"
     
-    # Output for GitHub Actions
-    echo "VERSION_TYPE=$version_type"
-    echo "CURRENT_VERSION=$current_version"
-    echo "NEW_VERSION=$new_version"
-    
-    # Also set GitHub Actions output if running in CI
-    if [[ -n "$GITHUB_OUTPUT" ]]; then
-        echo "version_type=$version_type" >> "$GITHUB_OUTPUT"
-        echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
-        echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
-    fi
-    
-    # Set environment variables if running in CI
-    if [[ -n "$GITHUB_ENV" ]]; then
-        echo "VERSION_TYPE=$version_type" >> "$GITHUB_ENV"
-        echo "CURRENT_VERSION=$current_version" >> "$GITHUB_ENV"
-        echo "NEW_VERSION=$new_version" >> "$GITHUB_ENV"
+    # Output for GitHub Actions and shell consumption
+    if [[ -n "$CI" ]] || [[ -n "$GITHUB_ACTIONS" ]]; then
+        # In CI, output clean environment variables to stdout
+        echo "VERSION_TYPE=$version_type"
+        echo "CURRENT_VERSION=$current_version"
+        echo "NEW_VERSION=$new_version"
+        
+        # Also set GitHub Actions output if available
+        if [[ -n "$GITHUB_OUTPUT" ]]; then
+            echo "version_type=$version_type" >> "$GITHUB_OUTPUT"
+            echo "current_version=$current_version" >> "$GITHUB_OUTPUT"
+            echo "new_version=$new_version" >> "$GITHUB_OUTPUT"
+        fi
+        
+        # Set environment variables if available
+        if [[ -n "$GITHUB_ENV" ]]; then
+            echo "VERSION_TYPE=$version_type" >> "$GITHUB_ENV"
+            echo "CURRENT_VERSION=$current_version" >> "$GITHUB_ENV"
+            echo "NEW_VERSION=$new_version" >> "$GITHUB_ENV"
+        fi
+    else
+        # In local development, show the formatted output
+        echo ""
+        echo "export VERSION_TYPE=$version_type"
+        echo "export CURRENT_VERSION=$current_version"  
+        echo "export NEW_VERSION=$new_version"
+        echo ""
+        echo "To use these values:"
+        echo "eval \$(./scripts/determine-version.sh)"
     fi
 }
 
