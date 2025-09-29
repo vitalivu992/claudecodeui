@@ -8,10 +8,8 @@ import { FolderOpen, Folder, Plus, MessageSquare, Clock, ChevronDown, ChevronRig
 import { cn } from '../lib/utils';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo.jsx';
-import TaskIndicator from './TaskIndicator';
 import { api } from '../utils/api';
 import { useTaskMaster } from '../contexts/TaskMasterContext';
-import { useTasksSettings } from '../contexts/TasksSettingsContext';
 
 // Move formatTimeAgo outside component to avoid recreation on every render
 const formatTimeAgo = (dateString, currentTime) => {
@@ -81,7 +79,6 @@ function Sidebar({
 
   // TaskMaster context
   const { setCurrentProject, mcpServerStatus } = useTaskMaster();
-  const { tasksEnabled } = useTasksSettings();
 
   
   // Starred projects state - persisted in localStorage
@@ -1028,20 +1025,6 @@ function Sidebar({
                                     <h3 className="text-sm font-medium text-foreground truncate">
                                       {project.displayName}
                                     </h3>
-                                    {tasksEnabled && (
-                                      <TaskIndicator 
-                                        status={(() => {
-                                          const projectConfigured = project.taskmaster?.hasTaskmaster;
-                                          const mcpConfigured = mcpServerStatus?.hasMCPServer && mcpServerStatus?.isConfigured;
-                                          if (projectConfigured && mcpConfigured) return 'fully-configured';
-                                          if (projectConfigured) return 'taskmaster-only';
-                                          if (mcpConfigured) return 'mcp-only';
-                                          return 'not-configured';
-                                        })()} 
-                                        size="xs"
-                                        className="flex-shrink-0 ml-2"
-                                      />
-                                    )}
                                   </div>
                                   <p className="text-xs text-muted-foreground">
                                     {(() => {

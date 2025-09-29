@@ -22,8 +22,6 @@ import { useDropzone } from 'react-dropzone';
 import TodoList from './TodoList';
 import ClaudeLogo from './ClaudeLogo.jsx';
 import CursorLogo from './CursorLogo.jsx';
-import NextTaskBanner from './NextTaskBanner.jsx';
-import { useTasksSettings } from '../contexts/TasksSettingsContext';
 
 import ClaudeStatus from './ClaudeStatus';
 import { MicButton } from './MicButton.jsx';
@@ -1166,8 +1164,7 @@ const ImageAttachment = ({ file, onRemove, uploadProgress, error }) => {
 // - onReplaceTemporarySession: Called to replace temporary session ID with real WebSocket session ID
 //
 // This ensures uninterrupted chat experience by pausing sidebar refreshes during conversations.
-function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, messages, onFileOpen, onInputFocusChange, onSessionActive, onSessionInactive, onReplaceTemporarySession, onNavigateToSession, onShowSettings, autoExpandTools, showRawParameters, autoScrollToBottom, sendByCtrlEnter, onTaskClick, onShowAllTasks }) {
-  const { tasksEnabled } = useTasksSettings();
+function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, messages, onFileOpen, onInputFocusChange, onSessionActive, onSessionInactive, onReplaceTemporarySession, onNavigateToSession, onShowSettings, autoExpandTools, showRawParameters, autoScrollToBottom, sendByCtrlEnter, onTaskClick }) {
   const [input, setInput] = useState(() => {
     if (typeof window !== 'undefined' && selectedProject) {
       return safeLocalStorage.getItem(`draft_input_${selectedProject.name}`) || '';
@@ -3100,15 +3097,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
                   }
                 </p>
                 
-                {/* Show NextTaskBanner when provider is selected and ready */}
-                {provider && tasksEnabled && (
-                  <div className="mt-4 px-4 sm:px-0">
-                    <NextTaskBanner 
-                      onStartTask={() => setInput('Start the next task')}
-                      onShowAllTasks={onShowAllTasks}
-                    />
-                  </div>
-                )}
               </div>
             )}
             {selectedSession && (
@@ -3118,15 +3106,6 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
                   Ask questions about your code, request changes, or get help with development tasks
                 </p>
                 
-                {/* Show NextTaskBanner for existing sessions too */}
-                {tasksEnabled && (
-                  <div className="mt-4 px-4 sm:px-0">
-                    <NextTaskBanner 
-                      onStartTask={() => setInput('Start the next task')}
-                      onShowAllTasks={onShowAllTasks}
-                    />
-                  </div>
-                )}
               </div>
             )}
           </div>

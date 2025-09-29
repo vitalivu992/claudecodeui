@@ -425,7 +425,6 @@ function MainContent({
               showRawParameters={showRawParameters}
               autoScrollToBottom={autoScrollToBottom}
               sendByCtrlEnter={sendByCtrlEnter}
-              onShowAllTasks={tasksEnabled ? () => setActiveTab('tasks') : null}
             />
           </ErrorBoundary>
         </div>
