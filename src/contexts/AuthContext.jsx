@@ -4,8 +4,6 @@ import { api } from '../utils/api';
 const AuthContext = createContext({
   user: null,
   token: null,
-  login: () => {},
-  register: () => {},
   pamLogin: () => {},
   logout: () => {},
   isLoading: true,
@@ -82,54 +80,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const login = async (username, password) => {
-    try {
-      setError(null);
-      const response = await api.auth.login(username, password);
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setToken(data.token);
-        setUser(data.user);
-        localStorage.setItem('auth-token', data.token);
-        return { success: true };
-      } else {
-        setError(data.error || 'Login failed');
-        return { success: false, error: data.error || 'Login failed' };
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      const errorMessage = 'Network error. Please try again.';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  const register = async (username, password) => {
-    try {
-      setError(null);
-      const response = await api.auth.register(username, password);
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setToken(data.token);
-        setUser(data.user);
-        setNeedsSetup(false);
-        localStorage.setItem('auth-token', data.token);
-        return { success: true };
-      } else {
-        setError(data.error || 'Registration failed');
-        return { success: false, error: data.error || 'Registration failed' };
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      const errorMessage = 'Network error. Please try again.';
-      setError(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
 
   const pamLogin = async (username, password) => {
     try {
@@ -172,8 +122,6 @@ export const AuthProvider = ({ children }) => {
   const value = {
     user,
     token,
-    login,
-    register,
     pamLogin,
     logout,
     isLoading,

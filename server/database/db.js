@@ -38,12 +38,12 @@ const userDb = {
     }
   },
 
-  // Create a new user
-  createUser: (username, passwordHash, isPamUser = false) => {
+  // Create a new user (PAM only)
+  createUser: (username) => {
     try {
-      const stmt = db.prepare('INSERT INTO users (username, password_hash, is_pam_user) VALUES (?, ?, ?)');
-      const result = stmt.run(username, passwordHash, isPamUser ? 1 : 0);
-      return { id: result.lastInsertRowid, username, is_pam_user: isPamUser };
+      const stmt = db.prepare('INSERT INTO users (username) VALUES (?)');
+      const result = stmt.run(username);
+      return { id: result.lastInsertRowid, username };
     } catch (err) {
       throw err;
     }
@@ -71,28 +71,8 @@ const userDb = {
   // Get user by ID
   getUserById: (userId) => {
     try {
-      const row = db.prepare('SELECT id, username, created_at, last_login, is_pam_user FROM users WHERE id = ? AND is_active = 1').get(userId);
+      const row = db.prepare('SELECT id, username, created_at, last_login FROM users WHERE id = ? AND is_active = 1').get(userId);
       return row;
-    } catch (err) {
-      throw err;
-    }
-  },
-
-  // Update user PAM status
-  updateUserPamStatus: (userId, isPamUser) => {
-    try {
-      const stmt = db.prepare('UPDATE users SET is_pam_user = ? WHERE id = ?');
-      stmt.run(isPamUser ? 1 : 0, userId);
-    } catch (err) {
-      throw err;
-    }
-  },
-
-  // Check if user is PAM user
-  isPamUser: (userId) => {
-    try {
-      const row = db.prepare('SELECT is_pam_user FROM users WHERE id = ? AND is_active = 1').get(userId);
-      return row ? row.is_pam_user === 1 : false;
     } catch (err) {
       throw err;
     }
