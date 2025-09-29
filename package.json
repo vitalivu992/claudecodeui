@@ -1,7 +1,7 @@
 {
-  "name": "@siteboon/claude-code-ui",
-  "version": "1.8.10",
-  "description": "A web-based UI for Claude Code CLI",
+  "name": "@vitalivu992/claude-code-ui",
+  "version": "1.0.0",
+  "description": "A web-based UI for Claude Code CLI - Personal Fork",
   "type": "module",
   "main": "server/index.js",
   "bin": {
@@ -12,13 +12,16 @@
     "dist/",
     "README.md"
   ],
-  "homepage": "https://claudecodeui.siteboon.ai",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "homepage": "https://github.com/vitalivu992/claudecodeui#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/siteboon/claudecodeui.git"
+    "url": "git+https://github.com/vitalivu992/claudecodeui.git"
   },
   "bugs": {
-    "url": "https://github.com/siteboon/claudecodeui/issues"
+    "url": "https://github.com/vitalivu992/claudecodeui/issues"
   },
   "scripts": {
     "dev": "concurrently --kill-others \"npm run server\" \"npm run client\"",

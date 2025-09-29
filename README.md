@@ -64,7 +64,7 @@ A desktop and mobile UI for [Claude Code](https://docs.anthropic.com/en/docs/cla
 No installation required, direct operation:
 
 ```bash
-npx @siteboon/claude-code-ui
+npx @vitalivu992/claude-code-ui --registry=https://npm.pkg.github.com
 ```
 
 Your default browser will automatically open the Claude Code UI interface.
@@ -73,7 +73,7 @@ Your default browser will automatically open the Claude Code UI interface.
 
 1. **Clone the repository:**
 ```bash
-git clone https://github.com/siteboon/claudecodeui.git
+git clone https://github.com/vitalivu992/claudecodeui.git
 cd claudecodeui
 ```
 

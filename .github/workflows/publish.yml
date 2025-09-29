@@ -1,0 +1,106 @@
+name: Publish to GitHub Package Registry
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version_type:
+        description: 'Version bump type'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - auto
+          - patch
+          - minor
+          - major
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@vitalivu992'
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build project
+        run: npm run build
+
+      - name: Determine version
+        id: version
+        run: |
+          # Handle different trigger types
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [[ "${{ github.event.inputs.version_type }}" == "auto" ]]; then
+              # Auto-detect version from commits
+              ./scripts/determine-version.sh
+            else
+              # Use manual version type
+              ./scripts/determine-version.sh --type "${{ github.event.inputs.version_type }}"
+            fi
+          elif [[ "${{ github.event_name }}" == "push" ]] && [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            # Tag push - extract version from tag
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "VERSION_TYPE=tag" >> $GITHUB_ENV
+            echo "NEW_VERSION=$VERSION" >> $GITHUB_ENV
+            echo "PACKAGE_VERSION=$VERSION" >> $GITHUB_ENV
+            echo "Using existing tag version: $VERSION"
+          else
+            # Branch push - auto-detect from commits
+            ./scripts/determine-version.sh
+          fi
+
+      - name: Update version and create tag
+        if: env.VERSION_TYPE != 'tag'
+        run: |
+          # Update version using our script
+          ./scripts/update-version.sh --version "${{ env.NEW_VERSION }}" --type "${{ env.VERSION_TYPE }}"
+          
+          # Set package version for publishing
+          echo "PACKAGE_VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_ENV
+
+      - name: Publish to GitHub Package Registry
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ env.PACKAGE_VERSION }}
+          release_name: Release v${{ env.PACKAGE_VERSION }}
+          body_path: ${{ env.CHANGELOG_FILE }}
+          draft: false
+          prerelease: false
