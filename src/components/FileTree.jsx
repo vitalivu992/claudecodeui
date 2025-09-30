@@ -4,15 +4,13 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Folder, FolderOpen, File, FileText, FileCode, List, TableProperties, Eye, Search, X } from 'lucide-react';
 import { cn } from '../lib/utils';
-import CodeEditor from './CodeEditor';
 import ImageViewer from './ImageViewer';
 import { api } from '../utils/api';
 
-function FileTree({ selectedProject }) {
+function FileTree({ selectedProject, onFileOpen }) {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [expandedDirs, setExpandedDirs] = useState(new Set());
-  const [selectedFile, setSelectedFile] = useState(null);
   const [selectedImage, setSelectedImage] = useState(null);
   const [viewMode, setViewMode] = useState('detailed'); // 'simple', 'detailed', 'compact'
   const [searchQuery, setSearchQuery] = useState('');
@@ -160,12 +158,7 @@ function FileTree({ selectedProject }) {
               });
             } else {
               // Open file in editor
-              setSelectedFile({
-                name: item.name,
-                path: item.path,
-                projectPath: selectedProject.path,
-                projectName: selectedProject.name
-              });
+              onFileOpen(item.path);
             }
           }}
         >
@@ -241,12 +234,7 @@ function FileTree({ selectedProject }) {
                 projectName: selectedProject.name
               });
             } else {
-              setSelectedFile({
-                name: item.name,
-                path: item.path,
-                projectPath: selectedProject.path,
-                projectName: selectedProject.name
-              });
+              onFileOpen(item.path);
             }
           }}
         >
@@ -303,12 +291,7 @@ function FileTree({ selectedProject }) {
                 projectName: selectedProject.name
               });
             } else {
-              setSelectedFile({
-                name: item.name,
-                path: item.path,
-                projectPath: selectedProject.path,
-                projectName: selectedProject.name
-              });
+              onFileOpen(item.path);
             }
           }}
         >
@@ -456,16 +439,7 @@ function FileTree({ selectedProject }) {
           </div>
         )}
       </ScrollArea>
-      
-      {/* Code Editor Modal */}
-      {selectedFile && (
-        <CodeEditor
-          file={selectedFile}
-          onClose={() => setSelectedFile(null)}
-          projectPath={selectedFile.projectPath}
-        />
-      )}
-      
+
       {/* Image Viewer Modal */}
       {selectedImage && (
         <ImageViewer

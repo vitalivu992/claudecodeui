@@ -14,7 +14,6 @@
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './ChatInterface';
 import FileTree from './FileTree';
-import CodeEditor from './CodeEditor';
 import StandaloneShell from './StandaloneShell';
 import GitPanel from './GitPanel';
 import ResizablePanels from './ResizablePanels';
@@ -29,13 +28,13 @@ import { useTaskMaster } from '../contexts/TaskMasterContext';
 import { useTasksSettings } from '../contexts/TasksSettingsContext';
 import { api } from '../utils/api';
 
-function MainContent({ 
-  selectedProject, 
-  selectedSession, 
-  activeTab, 
-  setActiveTab, 
-  ws, 
-  sendMessage, 
+function MainContent({
+  selectedProject,
+  selectedSession,
+  activeTab,
+  setActiveTab,
+  ws,
+  sendMessage,
   messages,
   isMobile,
   isPWA,
@@ -45,7 +44,7 @@ function MainContent({
   // Session Protection Props: Functions passed down from App.jsx to manage active session state
   // These functions control when project updates are paused during active conversations
   onSessionActive,        // Mark session as active when user sends message
-  onSessionInactive,      // Mark session as inactive when conversation completes/aborts  
+  onSessionInactive,      // Mark session as inactive when conversation completes/aborts
   onReplaceTemporarySession, // Replace temporary session ID with real session ID from WebSocket
   onNavigateToSession,    // Navigate to a specific session (for Claude CLI session duplication workaround)
   onShowSettings,         // Show tools settings panel
@@ -54,7 +53,6 @@ function MainContent({
   autoScrollToBottom,     // Auto-scroll to bottom when new messages arrive
   sendByCtrlEnter         // Send by Ctrl+Enter mode for East Asian language input
 }) {
-  const [editingFile, setEditingFile] = useState(null);
   const [selectedTask, setSelectedTask] = useState(null);
   const [showTaskDetail, setShowTaskDetail] = useState(false);
   
@@ -110,21 +108,7 @@ function MainContent({
     loadExistingPRDs();
   }, [currentProject?.name]);
 
-  const handleFileOpen = (filePath, diffInfo = null) => {
-    // Create a file object that CodeEditor expects
-    const file = {
-      name: filePath.split('/').pop(),
-      path: filePath,
-      projectName: selectedProject?.name,
-      diffInfo: diffInfo // Pass along diff information if available
-    };
-    setEditingFile(file);
-  };
-
-  const handleCloseEditor = () => {
-    setEditingFile(null);
-  };
-
+  
   const handleTaskClick = (task) => {
     // If task is just an ID (from dependency click), find the full task object
     if (typeof task === 'object' && task.id && !task.title) {
@@ -235,7 +219,6 @@ function MainContent({
         ws={ws}
         sendMessage={sendMessage}
         messages={messages}
-        onFileOpen={handleFileOpen}
         onInputFocusChange={onInputFocusChange}
         onSessionActive={onSessionActive}
         onSessionInactive={onSessionInactive}
@@ -274,15 +257,6 @@ function MainContent({
           }
         }}
       />
-
-      {/* Code Editor Modal */}
-      {editingFile && (
-        <CodeEditor
-          file={editingFile}
-          onClose={handleCloseEditor}
-          projectPath={selectedProject?.path}
-        />
-      )}
 
       {/* Task Detail Modal */}
       {shouldShowTasksTab && showTaskDetail && selectedTask && (

@@ -10,6 +10,7 @@ import ErrorBoundary from './ErrorBoundary';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
 import Tooltip from './Tooltip';
+import FileEditor from './FileEditor';
 
 function ResizablePanels({
   selectedProject,
@@ -41,16 +42,18 @@ function ResizablePanels({
 }) {
   const [leftActiveTab, setLeftActiveTab] = useState('files');
   const [rightActiveTab, setRightActiveTab] = useState('chat');
+  const [editingFile, setEditingFile] = useState(null);
 
   const handleFileOpen = (filePath, diffInfo = null) => {
-    // Create a file object that CodeEditor expects
+    // Create a file object that FileEditor expects
     const file = {
       name: filePath.split('/').pop(),
       path: filePath,
       projectName: selectedProject?.name,
       diffInfo: diffInfo // Pass along diff information if available
     };
-    onFileOpen(file);
+    setEditingFile(file);
+    setRightActiveTab('editor'); // Switch to editor tab when opening a file
   };
 
   const handleTaskClick = (task) => {
@@ -121,11 +124,15 @@ function ResizablePanels({
                        leftActiveTab === 'git' ? 'Source Control' :
                        (leftActiveTab === 'tasks' && shouldShowTasksTab) ? 'TaskMaster' :
                        rightActiveTab === 'chat' ? 'Chat' :
+                       rightActiveTab === 'editor' ? (editingFile ? editingFile.name : 'Editor') :
                        rightActiveTab === 'shell' ? 'Shell' :
                        'Project'}
                     </h2>
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {selectedProject.displayName}
+                      {rightActiveTab === 'editor' && editingFile ?
+                        editingFile.path :
+                        selectedProject.displayName
+                      }
                     </div>
                   </div>
                 )}
@@ -178,7 +185,7 @@ function ResizablePanels({
               <div className="panel-body">
                 {leftActiveTab === 'files' && (
                   <div className="h-full">
-                    <FileTree selectedProject={selectedProject} />
+                    <FileTree selectedProject={selectedProject} onFileOpen={handleFileOpen} />
                   </div>
                 )}
                 {leftActiveTab === 'git' && (
@@ -223,6 +230,15 @@ function ResizablePanels({
                   Chat
                 </button>
                 <button
+                  onClick={() => setRightActiveTab('editor')}
+                  className={`panel-tab ${rightActiveTab === 'editor' ? 'active' : ''}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                  Editor
+                </button>
+                <button
                   onClick={() => setRightActiveTab('shell')}
                   className={`panel-tab ${rightActiveTab === 'shell' ? 'active' : ''}`}
                 >
@@ -257,6 +273,28 @@ function ResizablePanels({
                         sendByCtrlEnter={sendByCtrlEnter}
                       />
                     </ErrorBoundary>
+                  </div>
+                )}
+                {rightActiveTab === 'editor' && (
+                  <div className="h-full">
+                    {editingFile ? (
+                      <ErrorBoundary showDetails={true}>
+                        <FileEditor
+                          file={editingFile}
+                          projectPath={selectedProject?.path}
+                        />
+                      </ErrorBoundary>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                        <div className="text-center">
+                          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <h3 className="text-lg font-medium mb-2">No File Open</h3>
+                          <p className="text-sm">Select a file from the file tree to open it in the editor</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
                 {rightActiveTab === 'shell' && (
