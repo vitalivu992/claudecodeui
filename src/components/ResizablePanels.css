@@ -1,0 +1,166 @@
+/* Custom styles for resizable panels */
+
+/* React-resizable-panels required styles */
+[data-panel-group] {
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  width: 100%;
+}
+
+[data-panel] {
+  flex: 1;
+  overflow: hidden;
+}
+
+[data-panel-resize-handle] {
+  background: #e5e7eb;
+  position: relative;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  touch-action: none;
+}
+
+[data-panel-resize-handle]:hover {
+  background: #9ca3af;
+}
+
+[data-panel-resize-handle]:active {
+  background: #6b7280;
+}
+
+.dark [data-panel-resize-handle] {
+  background: #374151;
+}
+
+.dark [data-panel-resize-handle]:hover {
+  background: #4b5563;
+}
+
+.dark [data-panel-resize-handle]:active {
+  background: #6b7280;
+}
+
+/* Add resize handle visual indicator */
+[data-panel-resize-handle]::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 3px;
+  height: 24px;
+  background: #9ca3af;
+  border-radius: 1.5px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+[data-panel-resize-handle]:hover::before {
+  opacity: 1;
+}
+
+.dark [data-panel-resize-handle]::before {
+  background: #6b7280;
+}
+
+/* Custom panel layout classes */
+.panel-group {
+  height: 100%;
+  width: 100%;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-left {
+  min-width: 200px;
+  max-width: 50%;
+}
+
+.panel-right {
+  min-width: 400px;
+  max-width: 80%;
+}
+
+.panel-resize-handle {
+  background: #e5e7eb;
+  width: 4px;
+  position: relative;
+  transition: background-color 0.2s ease;
+  cursor: col-resize;
+}
+
+/* Ensure panels don't collapse completely */
+.panel-content {
+  height: 100%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Tab styling improvements */
+.panel-tabs {
+  display: flex;
+  border-bottom: 1px solid #e5e7eb;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.dark .panel-tabs {
+  border-bottom-color: #374151;
+  background: #1f2937;
+}
+
+.panel-tab {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.panel-tab:hover {
+  color: #374151;
+  background: #f9fafb;
+}
+
+.panel-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.dark .panel-tab {
+  color: #9ca3af;
+}
+
+.dark .panel-tab:hover {
+  color: #f3f4f6;
+  background: #374151;
+}
+
+.dark .panel-tab.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+  background: #1e3a8a;
+}
+
+/* Panel content area */
+.panel-body {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
