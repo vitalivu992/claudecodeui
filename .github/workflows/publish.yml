@@ -92,6 +92,30 @@ jobs:
           # Set package version for publishing
           echo "PACKAGE_VERSION=${{ env.NEW_VERSION }}" >> $GITHUB_ENV
 
+      - name: Push version changes to repository
+        if: env.VERSION_TYPE != 'tag'
+        run: |
+          # Push the version commit and tag back to the repository
+          echo "Pushing version changes to repository..."
+          git push origin HEAD:master
+          echo "✅ Version changes pushed to repository"
+
+      - name: Validate version consistency
+        run: |
+          # Ensure package.json version matches the tag/version we're publishing
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          echo "Package.json version: $PACKAGE_VERSION"
+          echo "Expected version: ${{ env.PACKAGE_VERSION }}"
+          
+          if [[ "$PACKAGE_VERSION" != "${{ env.PACKAGE_VERSION }}" ]]; then
+            echo "❌ Version mismatch detected!"
+            echo "Package.json: $PACKAGE_VERSION"
+            echo "Expected: ${{ env.PACKAGE_VERSION }}"
+            exit 1
+          fi
+          
+          echo "✅ Version consistency validated"
+
       - name: Publish to GitHub Package Registry
         run: npm publish
         env:
