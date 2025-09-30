@@ -9,7 +9,6 @@ import { cn } from '../lib/utils';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo.jsx';
 import { api } from '../utils/api';
-import { useTaskMaster } from '../contexts/TaskMasterContext';
 
 // Move formatTimeAgo outside component to avoid recreation on every render
 const formatTimeAgo = (dateString, currentTime) => {
@@ -77,9 +76,7 @@ function Sidebar({
   const [filteredPaths, setFilteredPaths] = useState([]);
   const [selectedPathIndex, setSelectedPathIndex] = useState(-1);
 
-  // TaskMaster context
-  const { setCurrentProject, mcpServerStatus } = useTaskMaster();
-
+  
   
   // Starred projects state - persisted in localStorage
   const [starredProjects, setStarredProjects] = useState(() => {
@@ -551,15 +548,7 @@ function Sidebar({
     return displayName.includes(searchLower) || projectName.includes(searchLower);
   });
 
-  // Enhanced project selection that updates both the main UI and TaskMaster context
-  const handleProjectSelect = (project) => {
-    // Call the original project select handler
-    onProjectSelect(project);
-    
-    // Update TaskMaster context with the selected project
-    setCurrentProject(project);
-  };
-
+  
   return (
     <div 
       className="h-full flex flex-col bg-card md:select-none"
@@ -1131,13 +1120,13 @@ function Sidebar({
                       onClick={() => {
                         // Desktop behavior: select project and toggle
                         if (selectedProject?.name !== project.name) {
-                          handleProjectSelect(project);
+                          onProjectSelect(project);
                         }
                         toggleProject(project.name);
                       }}
                       onTouchEnd={handleTouchClick(() => {
                         if (selectedProject?.name !== project.name) {
-                          handleProjectSelect(project);
+                          onProjectSelect(project);
                         }
                         toggleProject(project.name);
                       })}
@@ -1319,11 +1308,11 @@ function Sidebar({
                                   isActive ? "border-green-500/30 bg-green-50/5 dark:bg-green-900/5" : "border-border/30"
                                 )}
                                 onClick={() => {
-                                  handleProjectSelect(project);
+                                  onProjectSelect(project);
                                   onSessionSelect(session);
                                 }}
                                 onTouchEnd={handleTouchClick(() => {
-                                  handleProjectSelect(project);
+                                  onProjectSelect(project);
                                   onSessionSelect(session);
                                 })}
                               >
@@ -1545,7 +1534,7 @@ function Sidebar({
                         <button
                           className="w-full h-8 bg-primary hover:bg-primary/90 text-primary-foreground rounded-md flex items-center justify-center gap-2 font-medium text-xs active:scale-[0.98] transition-all duration-150"
                           onClick={() => {
-                            handleProjectSelect(project);
+                            onProjectSelect(project);
                             onNewSession(project);
                           }}
                         >

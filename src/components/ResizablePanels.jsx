@@ -5,7 +5,6 @@ import FileTree from './FileTree';
 import GitPanel from './GitPanel';
 import ChatInterface from './ChatInterface';
 import StandaloneShell from './StandaloneShell';
-import TaskList from './TaskList';
 import ErrorBoundary from './ErrorBoundary';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
@@ -31,15 +30,7 @@ function ResizablePanels({
   sendByCtrlEnter,
   isMobile,
   onMenuClick,
-  shouldShowTasksTab,
-  tasks,
-  currentProject,
-  refreshTasks,
-  existingPRDs,
-  onTaskClick,
-  onShowPRDEditor,
-  onRefreshPRDs
-}) {
+  }) {
   const [leftActiveTab, setLeftActiveTab] = useState('files');
   const [rightActiveTab, setRightActiveTab] = useState('chat');
   const [editingFile, setEditingFile] = useState(null);
@@ -56,18 +47,7 @@ function ResizablePanels({
     setRightActiveTab('editor'); // Switch to editor tab when opening a file
   };
 
-  const handleTaskClick = (task) => {
-    // If task is just an ID (from dependency click), find the full task object
-    if (typeof task === 'object' && task.id && !task.title) {
-      const fullTask = tasks?.find(t => t.id === task.id);
-      if (fullTask) {
-        onTaskClick(fullTask);
-      }
-    } else {
-      onTaskClick(task);
-    }
-  };
-
+  
   return (
     <div className="h-full flex flex-col">
       {/* Header with project info and mobile menu */}
@@ -122,8 +102,7 @@ function ResizablePanels({
                     <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                       {leftActiveTab === 'files' ? 'Project Files' :
                        leftActiveTab === 'git' ? 'Source Control' :
-                       (leftActiveTab === 'tasks' && shouldShowTasksTab) ? 'TaskMaster' :
-                       rightActiveTab === 'chat' ? 'Chat' :
+                                              rightActiveTab === 'chat' ? 'Chat' :
                        rightActiveTab === 'editor' ? (editingFile ? editingFile.name : 'Editor') :
                        rightActiveTab === 'shell' ? 'Shell' :
                        'Project'}
@@ -168,18 +147,7 @@ function ResizablePanels({
                   </svg>
                   Source Control
                 </button>
-                {shouldShowTasksTab && (
-                  <button
-                    onClick={() => setLeftActiveTab('tasks')}
-                    className={`panel-tab ${leftActiveTab === 'tasks' ? 'active' : ''}`}
-                  >
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    Tasks
-                  </button>
-                )}
-              </div>
+                              </div>
 
               {/* Left Panel Content */}
               <div className="panel-body">
@@ -193,22 +161,7 @@ function ResizablePanels({
                     <GitPanel selectedProject={selectedProject} isMobile={isMobile} />
                   </div>
                 )}
-                {shouldShowTasksTab && leftActiveTab === 'tasks' && (
-                  <div className="h-full flex flex-col">
-                    <TaskList
-                      tasks={tasks || []}
-                      onTaskClick={handleTaskClick}
-                      showParentTasks={true}
-                      className="flex-1 overflow-y-auto"
-                      currentProject={currentProject}
-                      onTaskCreated={refreshTasks}
-                      onShowPRDEditor={onShowPRDEditor}
-                      existingPRDs={existingPRDs}
-                      onRefreshPRDs={onRefreshPRDs}
-                    />
-                  </div>
-                )}
-              </div>
+                              </div>
             </div>
           </Panel>
 
