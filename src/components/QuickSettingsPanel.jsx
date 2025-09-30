@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Maximize2, 
-  Eye, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Eye,
   Settings2,
   Moon,
   Sun,
@@ -12,10 +12,12 @@ import {
   Brain,
   Sparkles,
   FileText,
-  Languages
+  Languages,
+  LogOut
 } from 'lucide-react';
 import DarkModeToggle from './DarkModeToggle';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 
 const QuickSettingsPanel = ({ 
   isOpen, 
@@ -35,6 +37,7 @@ const QuickSettingsPanel = ({
     return localStorage.getItem('whisperMode') || 'default';
   });
   const { isDarkMode } = useTheme();
+  const { logout, user } = useAuth();
 
   useEffect(() => {
     setLocalIsOpen(isOpen);
@@ -44,6 +47,12 @@ const QuickSettingsPanel = ({
     const newState = !localIsOpen;
     setLocalIsOpen(newState);
     onToggle(newState);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setLocalIsOpen(false); // Close quick settings panel after logout
+    onToggle(false);
   };
 
   return (
@@ -164,6 +173,28 @@ const QuickSettingsPanel = ({
               <p className="text-xs text-gray-500 dark:text-gray-400 ml-3">
                 When enabled, pressing Ctrl+Enter will send the message instead of just Enter. This is useful for IME users to avoid accidental sends.
               </p>
+            </div>
+
+            {/* Account Settings */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Account</h4>
+
+              <div className="p-3 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium text-gray-900 dark:text-white">
+                    {user ? `Signed in as ${user.username}` : 'Not signed in'}
+                  </span>
+                </div>
+                {user && (
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center justify-center gap-2 p-2 rounded-md bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Sign Out
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Whisper Dictation Settings - HIDDEN */}
