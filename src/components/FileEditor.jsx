@@ -11,12 +11,13 @@ import { EditorView, Decoration } from '@codemirror/view';
 import { StateField, StateEffect, RangeSetBuilder } from '@codemirror/state';
 import { Save, Download, Eye, EyeOff } from 'lucide-react';
 import { api } from '../utils/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 function FileEditor({ file, projectPath }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode } = useTheme();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showDiff, setShowDiff] = useState(!!file.diffInfo);
   const [wordWrap, setWordWrap] = useState(false);
@@ -279,14 +280,6 @@ function FileEditor({ file, projectPath }) {
             title={wordWrap ? 'Disable word wrap' : 'Enable word wrap'}
           >
             <span className="text-sm font-mono font-bold">↵</span>
-          </button>
-
-          <button
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-            title="Toggle theme"
-          >
-            <span className="text-lg">{isDarkMode ? '☀️' : '🌙'}</span>
           </button>
 
           <button

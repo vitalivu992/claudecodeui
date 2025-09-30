@@ -11,13 +11,14 @@ import { EditorView, Decoration } from '@codemirror/view';
 import { StateField, StateEffect, RangeSetBuilder } from '@codemirror/state';
 import { X, Save, Download, Maximize2, Minimize2, Eye, EyeOff } from 'lucide-react';
 import { api } from '../utils/api';
+import { useTheme } from '../contexts/ThemeContext';
 
 function CodeEditor({ file, onClose, projectPath }) {
   const [content, setContent] = useState('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { isDarkMode } = useTheme();
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [showDiff, setShowDiff] = useState(!!file.diffInfo);
   const [wordWrap, setWordWrap] = useState(false);
@@ -302,21 +303,13 @@ function CodeEditor({ file, onClose, projectPath }) {
             <button
               onClick={() => setWordWrap(!wordWrap)}
               className={`p-2 md:p-2 rounded-md hover:bg-gray-100 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center ${
-                wordWrap 
-                  ? 'text-blue-600 bg-blue-50' 
+                wordWrap
+                  ? 'text-blue-600 bg-blue-50'
                   : 'text-gray-600 hover:text-gray-900'
               }`}
               title={wordWrap ? 'Disable word wrap' : 'Enable word wrap'}
             >
               <span className="text-sm md:text-xs font-mono font-bold">↵</span>
-            </button>
-            
-            <button
-              onClick={() => setIsDarkMode(!isDarkMode)}
-              className="p-2 md:p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 min-w-[44px] min-h-[44px] md:min-w-0 md:min-h-0 flex items-center justify-center"
-              title="Toggle theme"
-            >
-              <span className="text-lg md:text-base">{isDarkMode ? '☀️' : '🌙'}</span>
             </button>
             
             <button
