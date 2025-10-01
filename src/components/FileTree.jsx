@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
-import { Folder, FolderOpen, File, FileText, FileCode, List, TableProperties, Eye, Search, X } from 'lucide-react';
+import { ChevronRight, ChevronDown, File, FileText, FileCode, List, TableProperties, Eye, Search, X, Folder } from 'lucide-react';
 import { cn } from '../lib/utils';
 import ImageViewer from './ImageViewer';
 import { api } from '../utils/api';
@@ -142,9 +142,9 @@ function FileTree({ selectedProject, onFileOpen }) {
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start p-2 h-auto font-normal text-left hover:bg-accent",
+            "w-full justify-start p-1 h-auto font-normal text-left hover:bg-accent",
           )}
-          style={{ paddingLeft: `${level * 16 + 12}px` }}
+          style={{ paddingLeft: `${level * 12 + 6}px` }}
           onClick={() => {
             if (item.type === 'directory') {
               toggleDirectory(item.path);
@@ -162,25 +162,25 @@ function FileTree({ selectedProject, onFileOpen }) {
             }
           }}
         >
-          <div className="flex items-center gap-2 min-w-0 w-full">
+          <div className="flex items-center gap-1 min-w-0 w-full">
             {item.type === 'directory' ? (
               expandedDirs.has(item.path) ? (
-                <FolderOpen className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               ) : (
-                <Folder className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )
             ) : (
               getFileIcon(item.name)
             )}
-            <span className="text-sm truncate text-foreground">
+            <span className="text-sm truncate text-foreground leading-none">
               {item.name}
             </span>
           </div>
         </Button>
-        
-        {item.type === 'directory' && 
-         expandedDirs.has(item.path) && 
-         item.children && 
+
+        {item.type === 'directory' &&
+         expandedDirs.has(item.path) &&
+         item.children &&
          item.children.length > 0 && (
           <div>
             {renderFileTree(item.children, level + 1)}
@@ -198,11 +198,11 @@ function FileTree({ selectedProject, onFileOpen }) {
 
   const getFileIcon = (filename) => {
     const ext = filename.split('.').pop()?.toLowerCase();
-    
+
     const codeExtensions = ['js', 'jsx', 'ts', 'tsx', 'py', 'java', 'cpp', 'c', 'php', 'rb', 'go', 'rs'];
     const docExtensions = ['md', 'txt', 'doc', 'pdf'];
     const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'ico', 'bmp'];
-    
+
     if (codeExtensions.includes(ext)) {
       return <FileCode className="w-4 h-4 text-green-500 flex-shrink-0" />;
     } else if (docExtensions.includes(ext)) {
@@ -220,9 +220,9 @@ function FileTree({ selectedProject, onFileOpen }) {
       <div key={item.path} className="select-none">
         <div
           className={cn(
-            "grid grid-cols-12 gap-2 p-2 hover:bg-accent cursor-pointer items-center",
+            "grid grid-cols-12 gap-1 p-1 hover:bg-accent cursor-pointer items-center",
           )}
-          style={{ paddingLeft: `${level * 16 + 12}px` }}
+          style={{ paddingLeft: `${level * 12 + 6}px` }}
           onClick={() => {
             if (item.type === 'directory') {
               toggleDirectory(item.path);
@@ -238,34 +238,34 @@ function FileTree({ selectedProject, onFileOpen }) {
             }
           }}
         >
-          <div className="col-span-5 flex items-center gap-2 min-w-0">
+          <div className="col-span-5 flex items-center gap-1 min-w-0">
             {item.type === 'directory' ? (
               expandedDirs.has(item.path) ? (
-                <FolderOpen className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               ) : (
-                <Folder className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )
             ) : (
               getFileIcon(item.name)
             )}
-            <span className="text-sm truncate text-foreground">
+            <span className="text-sm truncate text-foreground leading-none">
               {item.name}
             </span>
           </div>
-          <div className="col-span-2 text-sm text-muted-foreground">
+          <div className="col-span-2 text-xs text-muted-foreground">
             {item.type === 'file' ? formatFileSize(item.size) : '-'}
           </div>
-          <div className="col-span-3 text-sm text-muted-foreground">
+          <div className="col-span-3 text-xs text-muted-foreground">
             {formatRelativeTime(item.modified)}
           </div>
-          <div className="col-span-2 text-sm text-muted-foreground font-mono">
+          <div className="col-span-2 text-xs text-muted-foreground font-mono">
             {item.permissionsRwx || '-'}
           </div>
         </div>
-        
-        {item.type === 'directory' && 
-         expandedDirs.has(item.path) && 
-         item.children && 
+
+        {item.type === 'directory' &&
+         expandedDirs.has(item.path) &&
+         item.children &&
          renderDetailedView(item.children, level + 1)}
       </div>
     ));
@@ -277,9 +277,9 @@ function FileTree({ selectedProject, onFileOpen }) {
       <div key={item.path} className="select-none">
         <div
           className={cn(
-            "flex items-center justify-between p-2 hover:bg-accent cursor-pointer",
+            "flex items-center justify-between p-1 hover:bg-accent cursor-pointer",
           )}
-          style={{ paddingLeft: `${level * 16 + 12}px` }}
+          style={{ paddingLeft: `${level * 12 + 6}px` }}
           onClick={() => {
             if (item.type === 'directory') {
               toggleDirectory(item.path);
@@ -295,21 +295,21 @@ function FileTree({ selectedProject, onFileOpen }) {
             }
           }}
         >
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1 min-w-0">
             {item.type === 'directory' ? (
               expandedDirs.has(item.path) ? (
-                <FolderOpen className="w-4 h-4 text-blue-500 flex-shrink-0" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               ) : (
-                <Folder className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
               )
             ) : (
               getFileIcon(item.name)
             )}
-            <span className="text-sm truncate text-foreground">
+            <span className="text-sm truncate text-foreground leading-none">
               {item.name}
             </span>
           </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             {item.type === 'file' && (
               <>
                 <span>{formatFileSize(item.size)}</span>
@@ -318,10 +318,10 @@ function FileTree({ selectedProject, onFileOpen }) {
             )}
           </div>
         </div>
-        
-        {item.type === 'directory' && 
-         expandedDirs.has(item.path) && 
-         item.children && 
+
+        {item.type === 'directory' &&
+         expandedDirs.has(item.path) &&
+         item.children &&
          renderCompactView(item.children, level + 1)}
       </div>
     ));
