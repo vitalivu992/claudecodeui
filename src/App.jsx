@@ -39,7 +39,7 @@ function AppContent() {
   const navigate = useNavigate();
   const { sessionId } = useParams();
   
-  const { updateAvailable, latestVersion, currentVersion } = useVersionCheck('siteboon', 'claudecodeui');
+  const { updateAvailable, latestVersion, currentVersion } = useVersionCheck('vitalivu992', 'claudecodeui');
   const [showVersionModal, setShowVersionModal] = useState(false);
   
   const [projects, setProjects] = useState([]);
