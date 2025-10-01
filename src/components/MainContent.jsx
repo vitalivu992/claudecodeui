@@ -43,6 +43,8 @@ function MainContent({
   autoExpandTools,        // Auto-expand tool accordions
   showRawParameters,      // Show raw parameters in tool accordions
   autoScrollToBottom,     // Auto-scroll to bottom when new messages arrive
+  permissionMode,         // Global permission mode setting
+  onPermissionModeChange, // Permission mode change handler
   }) {
 
   if (isLoading) {
@@ -141,6 +143,8 @@ function MainContent({
           autoExpandTools={autoExpandTools}
           showRawParameters={showRawParameters}
           autoScrollToBottom={autoScrollToBottom}
+          permissionMode={permissionMode}
+          onPermissionModeChange={onPermissionModeChange}
             isMobile={isMobile}
           onMenuClick={onMenuClick}
         />

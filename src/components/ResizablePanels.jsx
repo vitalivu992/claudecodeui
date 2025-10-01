@@ -26,6 +26,8 @@ function ResizablePanels({
   autoExpandTools,
   showRawParameters,
   autoScrollToBottom,
+  permissionMode,
+  onPermissionModeChange,
   isMobile,
   onMenuClick,
   }) {
@@ -211,6 +213,8 @@ function ResizablePanels({
                         autoExpandTools={autoExpandTools}
                         showRawParameters={showRawParameters}
                         autoScrollToBottom={autoScrollToBottom}
+                        permissionMode={permissionMode}
+                        onPermissionModeChange={onPermissionModeChange}
                         sendByCtrlEnter={true}
                       />
                     </ErrorBoundary>

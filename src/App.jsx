@@ -64,6 +64,10 @@ function AppContent() {
     const saved = localStorage.getItem('autoScrollToBottom');
     return saved !== null ? JSON.parse(saved) : true;
   });
+  const [permissionMode, setPermissionMode] = useState(() => {
+    const saved = localStorage.getItem('permissionMode');
+    return saved || 'default';
+  });
     // Session Protection System: Track sessions with active conversations to prevent
   // automatic project updates from interrupting ongoing chats. When a user sends
   // a message, the session is marked as "active" and project updates are paused
@@ -664,6 +668,8 @@ function AppContent() {
           autoExpandTools={autoExpandTools}
           showRawParameters={showRawParameters}
           autoScrollToBottom={autoScrollToBottom}
+          permissionMode={permissionMode}
+          onPermissionModeChange={setPermissionMode}
             />
       </div>
 
@@ -694,6 +700,11 @@ function AppContent() {
           onAutoScrollChange={(value) => {
             setAutoScrollToBottom(value);
             localStorage.setItem('autoScrollToBottom', JSON.stringify(value));
+          }}
+          permissionMode={permissionMode}
+          onPermissionModeChange={(value) => {
+            setPermissionMode(value);
+            localStorage.setItem('permissionMode', value);
           }}
           isMobile={isMobile}
         />

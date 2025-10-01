@@ -25,6 +25,8 @@ const QuickSettingsPanel = ({
   onShowRawParametersChange,
   autoScrollToBottom,
   onAutoScrollChange,
+  permissionMode,
+  onPermissionModeChange,
   isMobile
 }) => {
   const [localIsOpen, setLocalIsOpen] = useState(isOpen);
@@ -152,8 +154,93 @@ const QuickSettingsPanel = ({
               </label>
             </div>
 
-  
-  
+            {/* Claude Permissions Settings */}
+            <div className="space-y-2">
+              <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Claude Permissions</h4>
+
+              <div className="space-y-2">
+                <label className="flex items-start p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+                  <input
+                    type="radio"
+                    name="permissionMode"
+                    value="default"
+                    checked={permissionMode === 'default'}
+                    onChange={() => onPermissionModeChange('default')}
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                  />
+                  <div className="ml-3 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <div className="w-2 h-2 rounded-full bg-gray-500" />
+                      Default Mode
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Standard Claude behavior with permission prompts
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+                  <input
+                    type="radio"
+                    name="permissionMode"
+                    value="acceptEdits"
+                    checked={permissionMode === 'acceptEdits'}
+                    onChange={() => onPermissionModeChange('acceptEdits')}
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                  />
+                  <div className="ml-3 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      Accept Edits
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Automatically accept file edits and changes
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+                  <input
+                    type="radio"
+                    name="permissionMode"
+                    value="bypassPermissions"
+                    checked={permissionMode === 'bypassPermissions'}
+                    onChange={() => onPermissionModeChange('bypassPermissions')}
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                  />
+                  <div className="ml-3 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <div className="w-2 h-2 rounded-full bg-orange-500" />
+                      Bypass Permissions
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Skip permission prompts for faster execution
+                    </p>
+                  </div>
+                </label>
+
+                <label className="flex items-start p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
+                  <input
+                    type="radio"
+                    name="permissionMode"
+                    value="plan"
+                    checked={permissionMode === 'plan'}
+                    onChange={() => onPermissionModeChange('plan')}
+                    className="mt-0.5 h-4 w-4 border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600"
+                  />
+                  <div className="ml-3 flex-1">
+                    <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <div className="w-2 h-2 rounded-full bg-blue-500" />
+                      Plan Mode
+                    </span>
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      Generate plans without executing changes
+                    </p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
             {/* Whisper Dictation Settings - HIDDEN */}
             <div className="space-y-2" style={{ display: 'none' }}>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Whisper Dictation</h4>
