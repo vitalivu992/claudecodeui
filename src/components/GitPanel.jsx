@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { GitBranch, GitCommit, Plus, Minus, RefreshCw, Check, X, ChevronDown, ChevronRight, Info, History, FileText, Mic, MicOff, Sparkles, Download, RotateCcw, Trash2, AlertTriangle, Upload } from 'lucide-react';
+import { GitBranch, GitCommit, Plus, Minus, RefreshCw, Check, X, ChevronDown, ChevronRight, Info, History, FileText, Mic, MicOff, Download, RotateCcw, Trash2, AlertTriangle, Upload } from 'lucide-react';
 import { MicButton } from './MicButton.jsx';
 import { authenticatedFetch } from '../utils/api';
 import DiffViewer from './DiffViewer.jsx';
@@ -24,7 +24,6 @@ function GitPanel({ selectedProject, isMobile }) {
   const [recentCommits, setRecentCommits] = useState([]);
   const [expandedCommits, setExpandedCommits] = useState(new Set());
   const [commitDiffs, setCommitDiffs] = useState({});
-  const [isGeneratingMessage, setIsGeneratingMessage] = useState(false);
   const [remoteStatus, setRemoteStatus] = useState(null);
   const [isFetching, setIsFetching] = useState(false);
   const [isPulling, setIsPulling] = useState(false);
@@ -424,31 +423,7 @@ function GitPanel({ selectedProject, isMobile }) {
     }
   };
 
-  const generateCommitMessage = async () => {
-    setIsGeneratingMessage(true);
-    try {
-      const response = await authenticatedFetch('/api/git/generate-commit-message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          project: selectedProject.name,
-          files: Array.from(selectedFiles)
-        })
-      });
-      
-      const data = await response.json();
-      if (data.message) {
-        setCommitMessage(data.message);
-      } else {
-        console.error('Failed to generate commit message:', data.error);
-      }
-    } catch (error) {
-      console.error('Error generating commit message:', error);
-    } finally {
-      setIsGeneratingMessage(false);
-    }
-  };
-
+  
   const toggleFileExpanded = (filePath) => {
     setExpandedFiles(prev => {
       const newSet = new Set(prev);
@@ -1012,18 +987,6 @@ function GitPanel({ selectedProject, isMobile }) {
                         }}
                       />
                       <div className="absolute right-2 top-2 flex gap-1">
-                        <button
-                          onClick={generateCommitMessage}
-                          disabled={selectedFiles.size === 0 || isGeneratingMessage}
-                          className="p-1.5 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                          title="Generate commit message"
-                        >
-                          {isGeneratingMessage ? (
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Sparkles className="w-4 h-4" />
-                          )}
-                        </button>
                         <div style={{ display: 'none' }}>
                           <MicButton
                             onTranscript={(transcript) => setCommitMessage(transcript)}
