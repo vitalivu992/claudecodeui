@@ -423,6 +423,18 @@ function GitPanel({ selectedProject, isMobile, onShowDiff }) {
 
   
   
+  const handleCommitClick = async (commit) => {
+    // Ensure diff is fetched before showing in Diff tab
+    if (!commitDiffs[commit.hash]) {
+      await fetchCommitDiff(commit.hash);
+    }
+
+    const diff = commitDiffs[commit.hash];
+    if (diff && onShowDiff) {
+      onShowDiff(`Commit: ${commit.message}`, diff);
+    }
+  };
+
   const toggleCommitExpanded = (commitHash) => {
     setExpandedCommits(prev => {
       const newSet = new Set(prev);
@@ -540,27 +552,44 @@ function GitPanel({ selectedProject, isMobile, onShowDiff }) {
   const renderCommitItem = (commit) => {
     const isExpanded = expandedCommits.has(commit.hash);
     const diff = commitDiffs[commit.hash];
-    
+
     return (
       <div key={commit.hash} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
-        <div 
+        <div
           className="flex items-start p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-          onClick={() => toggleCommitExpanded(commit.hash)}
         >
           <div className="mr-2 mt-1 p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded">
-            {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleCommitExpanded(commit.hash);
+              }}
+              className="p-0.5 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+            >
+              {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+            </button>
           </div>
-          <div className="flex-1 min-w-0">
+          <div
+            className="flex-1 min-w-0"
+            onClick={() => handleCommitClick(commit)}
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                <p className="text-sm font-medium text-gray-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400">
                   {commit.message}
                 </p>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {commit.author} • {commit.date}
                 </p>
               </div>
-              <span className="text-xs font-mono text-gray-400 dark:text-gray-500 flex-shrink-0">
+              <span
+                className="text-xs font-mono text-gray-400 dark:text-gray-500 flex-shrink-0 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCommitClick(commit);
+                }}
+                title="Click to view diff in Diff tab"
+              >
                 {commit.hash.substring(0, 7)}
               </span>
             </div>
@@ -572,7 +601,7 @@ function GitPanel({ selectedProject, isMobile, onShowDiff }) {
               <div className="text-xs font-mono text-gray-600 dark:text-gray-400 mb-2">
                 {commit.stats}
               </div>
-              <DiffViewer diff={diff} fileName="commit" isMobile={isMobile} wrapText={wrapText} />
+              <DiffViewer diff={diff} fileName="commit" isMobile={isMobile} wrapText={true} />
             </div>
           </div>
         )}
