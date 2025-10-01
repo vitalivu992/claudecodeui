@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { userDb } from '../database/db.js';
+import pamAuth from '../services/pamAuth.js';
 
 // Get JWT secret from environment or use default (for development)
 const JWT_SECRET = process.env.JWT_SECRET || 'claude-ui-dev-secret-change-in-production';
@@ -29,14 +30,26 @@ const authenticateToken = async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
-    
+
     // Verify user still exists and is active
     const user = userDb.getUserById(decoded.userId);
     if (!user) {
       return res.status(401).json({ error: 'Invalid token. User not found.' });
     }
-    
-    req.user = user;
+
+    // Get user info from system
+    try {
+      const userInfo = await pamAuth.getUserInfo(user.username);
+      req.user = {
+        ...user,
+        userInfo: userInfo
+      };
+    } catch (error) {
+      console.error('Failed to get user info:', error);
+      // Still proceed with user object without userInfo
+      req.user = user;
+    }
+
     next();
   } catch (error) {
     console.error('Token verification error:', error);
