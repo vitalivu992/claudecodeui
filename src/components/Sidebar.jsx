@@ -65,7 +65,7 @@ function Sidebar({
   const [additionalSessions, setAdditionalSessions] = useState({});
   const [initialSessionsLoaded, setInitialSessionsLoaded] = useState(new Set());
   const [currentTime, setCurrentTime] = useState(new Date());
-  const [projectSortOrder, setProjectSortOrder] = useState('name');
+  const [projectSortOrder, setProjectSortOrder] = useState('date');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [editingSession, setEditingSession] = useState(null);
   const [editingSessionName, setEditingSessionName] = useState('');
@@ -144,7 +144,12 @@ function Sidebar({
         const savedSettings = localStorage.getItem('claude-settings');
         if (savedSettings) {
           const settings = JSON.parse(savedSettings);
-          setProjectSortOrder(settings.projectSortOrder || 'name');
+          setProjectSortOrder(settings.projectSortOrder || 'date');
+        }
+        // Also check localStorage directly for projectSortOrder (QuickSettings stores it separately)
+        const directSortOrder = localStorage.getItem('projectSortOrder');
+        if (directSortOrder) {
+          setProjectSortOrder(directSortOrder);
         }
       } catch (error) {
         console.error('Error loading sort order:', error);
@@ -162,7 +167,13 @@ function Sidebar({
     };
 
     window.addEventListener('storage', handleStorageChange);
-    
+
+    // Listen for custom event from QuickSettings
+    const handleProjectSortOrderChange = (e) => {
+      setProjectSortOrder(e.detail);
+    };
+    window.addEventListener('projectSortOrderChanged', handleProjectSortOrderChange);
+
     // Also check periodically when component is focused (for same-tab changes)
     const checkInterval = setInterval(() => {
       if (document.hasFocus()) {
@@ -172,6 +183,7 @@ function Sidebar({
     
     return () => {
       window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('projectSortOrderChanged', handleProjectSortOrderChange);
       clearInterval(checkInterval);
     };
   }, []);

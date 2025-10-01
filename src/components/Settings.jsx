@@ -17,7 +17,6 @@ function Settings({ isOpen, onClose, projects = [] }) {
   const [skipPermissions, setSkipPermissions] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveStatus, setSaveStatus] = useState(null);
-  const [projectSortOrder, setProjectSortOrder] = useState('name');
 
   const [mcpServers, setMcpServers] = useState([]);
   const [showMcpForm, setShowMcpForm] = useState(false);
@@ -331,13 +330,11 @@ function Settings({ isOpen, onClose, projects = [] }) {
         setAllowedTools(settings.allowedTools || []);
         setDisallowedTools(settings.disallowedTools || []);
         setSkipPermissions(settings.skipPermissions || false);
-        setProjectSortOrder(settings.projectSortOrder || 'name');
       } else {
         // Set defaults
         setAllowedTools([]);
         setDisallowedTools([]);
         setSkipPermissions(false);
-        setProjectSortOrder('name');
       }
       
       // Load Cursor settings from localStorage
@@ -366,7 +363,6 @@ function Settings({ isOpen, onClose, projects = [] }) {
       setAllowedTools([]);
       setDisallowedTools([]);
       setSkipPermissions(false);
-      setProjectSortOrder('name');
     }
   };
 
@@ -400,7 +396,6 @@ function Settings({ isOpen, onClose, projects = [] }) {
         allowedTools,
         disallowedTools,
         skipPermissions,
-        projectSortOrder,
         lastUpdated: new Date().toISOString()
       };
       
@@ -666,35 +661,6 @@ function Settings({ isOpen, onClose, projects = [] }) {
             {/* Appearance Tab */}
             {activeTab === 'appearance' && (
               <div className="space-y-6 md:space-y-8">
-               {activeTab === 'appearance' && (
-  <div className="space-y-6 md:space-y-8">
-  
-    {/* Project Sorting */}
-    <div className="space-y-4">
-      <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="font-medium text-foreground">
-              Project Sorting
-            </div>
-            <div className="text-sm text-muted-foreground">
-              How projects are ordered in the sidebar
-            </div>
-          </div>
-          <select
-            value={projectSortOrder}
-            onChange={(e) => setProjectSortOrder(e.target.value)}
-            className="text-sm bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2 w-32"
-          >
-            <option value="name">Alphabetical</option>
-            <option value="date">Recent Activity</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-
               </div>
             )}
 
