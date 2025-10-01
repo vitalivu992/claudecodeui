@@ -48,6 +48,10 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('chat'); // 'chat' or 'files'
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarVisible, setSidebarVisible] = useState(() => {
+    const saved = localStorage.getItem('sidebarVisible');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isInputFocused, setIsInputFocused] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -111,12 +115,31 @@ function AppContent() {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
+
+  // Keyboard shortcut for sidebar toggle (Ctrl+B)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // Ctrl+B to toggle sidebar (only on desktop)
+      if (!isMobile && e.ctrlKey && e.key === 'b') {
+        e.preventDefault();
+        setSidebarVisible(prev => !prev);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobile]);
+
+  // Save sidebar visibility state to localStorage
+  useEffect(() => {
+    localStorage.setItem('sidebarVisible', JSON.stringify(sidebarVisible));
+  }, [sidebarVisible]);
 
   useEffect(() => {
     // Fetch projects on component mount
@@ -570,9 +593,11 @@ function AppContent() {
 
   return (
     <div className="fixed inset-0 flex bg-background">
-      {/* Fixed Desktop Sidebar */}
+      {/* Fixed Desktop Sidebar - Now Toggleable */}
       {!isMobile && (
-        <div className="w-80 flex-shrink-0 border-r border-border bg-card">
+        <div className={`transition-all duration-300 ease-in-out ${
+          sidebarVisible ? 'w-80 flex-shrink-0' : 'w-0'
+        } border-r border-border bg-card overflow-hidden`}>
           <div className="h-full overflow-hidden">
             <Sidebar
               projects={projects}
@@ -658,6 +683,7 @@ function AppContent() {
           isMobile={isMobile}
           isPWA={isPWA}
           onMenuClick={() => setSidebarOpen(true)}
+          onSidebarToggle={() => setSidebarVisible(!sidebarVisible)}
           isLoading={isLoadingProjects}
           onInputFocusChange={setIsInputFocused}
           onSessionActive={markSessionAsActive}

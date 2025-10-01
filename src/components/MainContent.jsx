@@ -33,6 +33,7 @@ function MainContent({
   isMobile,
   isPWA,
   onMenuClick,
+  onSidebarToggle,
   isLoading,
   onInputFocusChange,
   onSessionActive,
@@ -147,6 +148,7 @@ function MainContent({
           onPermissionModeChange={onPermissionModeChange}
             isMobile={isMobile}
           onMenuClick={onMenuClick}
+          onSidebarToggle={onSidebarToggle}
         />
       </ErrorBoundary>
     </div>

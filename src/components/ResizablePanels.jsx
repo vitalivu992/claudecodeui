@@ -30,6 +30,7 @@ function ResizablePanels({
   onPermissionModeChange,
   isMobile,
   onMenuClick,
+  onSidebarToggle,
   }) {
   const [leftActiveTab, setLeftActiveTab] = useState('files');
   const [rightActiveTab, setRightActiveTab] = useState('chat');
@@ -67,6 +68,20 @@ function ResizablePanels({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
+            )}
+            {/* Desktop Sidebar Toggle Button */}
+            {!isMobile && (
+              <Tooltip content="Toggle sidebar" side="bottom">
+                <button
+                  onClick={onSidebarToggle}
+                  className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
+                  title="Toggle sidebar (Ctrl+B)"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                </button>
+              </Tooltip>
             )}
             <div className="min-w-0 flex items-center gap-2">
               {rightActiveTab === 'chat' && selectedSession && (
