@@ -60,35 +60,32 @@ function GitPanel({ selectedProject, isMobile }) {
 
   const fetchGitStatus = async () => {
     if (!selectedProject) return;
-    
-    
+
     setIsLoading(true);
     try {
       const response = await authenticatedFetch(`/api/git/status?project=${encodeURIComponent(selectedProject.name)}`);
       const data = await response.json();
-      
-      
+
       if (data.error) {
         console.error('Git status error:', data.error);
         setGitStatus({ error: data.error, details: data.details });
       } else {
         setGitStatus(data);
         setCurrentBranch(data.branch || 'main');
-        
-        // Auto-select all changed files
+
+        // Auto-select all unstaged files
         const allFiles = new Set([
-          ...(data.modified || []),
-          ...(data.added || []),
-          ...(data.deleted || []),
-          ...(data.untracked || [])
+          ...(data.unstaged?.modified || []),
+          ...(data.unstaged?.deleted || []),
+          ...(data.unstaged?.untracked || [])
         ]);
         setSelectedFiles(allFiles);
-        
+
         // Fetch diffs for changed files
-        for (const file of data.modified || []) {
+        for (const file of data.unstaged?.modified || []) {
           fetchFileDiff(file);
         }
-        for (const file of data.added || []) {
+        for (const file of data.staged?.modified || []) {
           fetchFileDiff(file);
         }
       }
@@ -492,9 +489,53 @@ function GitPanel({ selectedProject, isMobile }) {
     });
   };
 
+  const stageFile = async (filePath) => {
+    try {
+      const response = await authenticatedFetch('/api/git/stage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project: selectedProject.name,
+          file: filePath
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchGitStatus();
+      } else {
+        console.error('Stage failed:', data.error);
+      }
+    } catch (error) {
+      console.error('Error staging file:', error);
+    }
+  };
+
+  const unstageFile = async (filePath) => {
+    try {
+      const response = await authenticatedFetch('/api/git/unstage', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          project: selectedProject.name,
+          file: filePath
+        })
+      });
+
+      const data = await response.json();
+      if (data.success) {
+        fetchGitStatus();
+      } else {
+        console.error('Unstage failed:', data.error);
+      }
+    } catch (error) {
+      console.error('Error unstaging file:', error);
+    }
+  };
+
   const handleCommit = async () => {
-    if (!commitMessage.trim() || selectedFiles.size === 0) return;
-    
+    if (!commitMessage.trim()) return;
+
     setIsCommitting(true);
     try {
       const response = await authenticatedFetch('/api/git/commit', {
@@ -502,11 +543,10 @@ function GitPanel({ selectedProject, isMobile }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           project: selectedProject.name,
-          message: commitMessage,
-          files: Array.from(selectedFiles)
+          message: commitMessage
         })
       });
-      
+
       const data = await response.json();
       if (data.success) {
         // Reset state after successful commit
@@ -578,22 +618,34 @@ function GitPanel({ selectedProject, isMobile }) {
     );
   };
 
-  const renderFileItem = (filePath, status) => {
+  const renderFileItem = (filePath, status, isStaged = false) => {
     const isExpanded = expandedFiles.has(filePath);
-    const isSelected = selectedFiles.has(filePath);
     const diff = gitDiff[filePath];
-    
+
     return (
       <div key={filePath} className="border-b border-gray-200 dark:border-gray-700 last:border-0">
         <div className={`flex items-center hover:bg-gray-50 dark:hover:bg-gray-800 ${isMobile ? 'px-2 py-1.5' : 'px-3 py-2'}`}>
-          <input
-            type="checkbox"
-            checked={isSelected}
-            onChange={() => toggleFileSelected(filePath)}
-            onClick={(e) => e.stopPropagation()}
-            className={`rounded border-gray-300 dark:border-gray-600 text-blue-600 dark:text-blue-500 focus:ring-blue-500 dark:focus:ring-blue-400 dark:bg-gray-800 dark:checked:bg-blue-600 ${isMobile ? 'mr-1.5' : 'mr-2'}`}
-          />
-          <div 
+          {/* Stage/Unstage button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              if (isStaged) {
+                unstageFile(filePath);
+              } else {
+                stageFile(filePath);
+              }
+            }}
+            className={`p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 mr-1 ${
+              isStaged
+                ? 'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300'
+                : 'text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
+            }`}
+            title={isStaged ? 'Unstage file' : 'Stage file'}
+          >
+            {isStaged ? <Minus className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
+          </button>
+
+          <div
             className="flex items-center flex-1 cursor-pointer"
             onClick={() => toggleFileExpanded(filePath)}
           >
@@ -602,14 +654,14 @@ function GitPanel({ selectedProject, isMobile }) {
             </div>
             <span className={`flex-1 truncate ${isMobile ? 'text-xs' : 'text-sm'}`}>{filePath}</span>
             <div className="flex items-center gap-1">
-              {(status === 'M' || status === 'D') && (
+              {!isStaged && (status === 'M' || status === 'D') && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setConfirmAction({ 
-                      type: 'discard', 
+                    setConfirmAction({
+                      type: 'discard',
                       file: filePath,
-                      message: `Discard all changes to "${filePath}"? This action cannot be undone.` 
+                      message: `Discard all changes to "${filePath}"? This action cannot be undone.`
                     });
                   }}
                   className={`${isMobile ? 'px-2 py-1 text-xs' : 'p-1'} hover:bg-red-100 dark:hover:bg-red-900 rounded text-red-600 dark:text-red-400 font-medium flex items-center gap-1`}
@@ -619,14 +671,14 @@ function GitPanel({ selectedProject, isMobile }) {
                   {isMobile && <span>Discard</span>}
                 </button>
               )}
-              {status === 'U' && (
+              {!isStaged && status === 'U' && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    setConfirmAction({ 
-                      type: 'delete', 
+                    setConfirmAction({
+                      type: 'delete',
                       file: filePath,
-                      message: `Delete untracked file "${filePath}"? This action cannot be undone.` 
+                      message: `Delete untracked file "${filePath}"? This action cannot be undone.`
                     });
                   }}
                   className={`${isMobile ? 'px-2 py-1 text-xs' : 'p-1'} hover:bg-red-100 dark:hover:bg-red-900 rounded text-red-600 dark:text-red-400 font-medium flex items-center gap-1`}
@@ -636,7 +688,7 @@ function GitPanel({ selectedProject, isMobile }) {
                   {isMobile && <span>Delete</span>}
                 </button>
               )}
-              <span 
+              <span
                 className={`inline-flex items-center justify-center w-5 h-5 rounded text-xs font-bold border ${
                   status === 'M' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800' :
                   status === 'A' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-green-200 dark:border-green-800' :
@@ -651,14 +703,14 @@ function GitPanel({ selectedProject, isMobile }) {
           </div>
         </div>
         <div className={`bg-gray-50 dark:bg-gray-900 transition-all duration-400 ease-in-out overflow-hidden ${
-          isExpanded && diff 
-            ? 'max-h-[600px] opacity-100 translate-y-0' 
+          isExpanded && diff
+            ? 'max-h-[600px] opacity-100 translate-y-0'
             : 'max-h-0 opacity-0 -translate-y-1'
         }`}>
             {/* Operation header */}
             <div className="flex items-center justify-between p-2 border-b border-gray-200 dark:border-gray-700">
               <div className="flex items-center gap-2">
-                <span 
+                <span
                   className={`inline-flex items-center justify-center w-5 h-5 rounded text-xs font-bold border ${
                     status === 'M' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800' :
                     status === 'A' ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300 border-green-200 dark:border-green-800' :
@@ -1007,21 +1059,20 @@ function GitPanel({ selectedProject, isMobile }) {
           {/* File Selection Controls - Only show in changes view and when git is working and no files expanded */}
           {activeView === 'changes' && gitStatus && !gitStatus.error && (
             <div className={`border-b border-gray-200 dark:border-gray-700 flex items-center justify-between transition-all duration-300 ease-in-out ${isMobile ? 'px-3 py-1.5' : 'px-4 py-2'} ${
-              expandedFiles.size === 0 
-                ? 'max-h-16 opacity-100 translate-y-0' 
+              expandedFiles.size === 0
+                ? 'max-h-16 opacity-100 translate-y-0'
                 : 'max-h-0 opacity-0 -translate-y-2 overflow-hidden'
             }`}>
               <span className={`text-gray-600 dark:text-gray-400 ${isMobile ? 'text-xs' : 'text-xs'}`}>
-                {selectedFiles.size} of {(gitStatus?.modified?.length || 0) + (gitStatus?.added?.length || 0) + (gitStatus?.deleted?.length || 0) + (gitStatus?.untracked?.length || 0)} {isMobile ? '' : 'files'} selected
+                {selectedFiles.size} unstaged files selected
               </span>
               <div className={`flex ${isMobile ? 'gap-1' : 'gap-2'}`}>
                 <button
                   onClick={() => {
                     const allFiles = new Set([
-                      ...(gitStatus?.modified || []),
-                      ...(gitStatus?.added || []),
-                      ...(gitStatus?.deleted || []),
-                      ...(gitStatus?.untracked || [])
+                      ...(gitStatus?.unstaged?.modified || []),
+                      ...(gitStatus?.unstaged?.deleted || []),
+                      ...(gitStatus?.unstaged?.untracked || [])
                     ]);
                     setSelectedFiles(allFiles);
                   }}
@@ -1094,17 +1145,50 @@ function GitPanel({ selectedProject, isMobile }) {
             <div className="flex items-center justify-center h-32">
               <RefreshCw className="w-6 h-6 animate-spin text-gray-400" />
             </div>
-          ) : !gitStatus || (!gitStatus.modified?.length && !gitStatus.added?.length && !gitStatus.deleted?.length && !gitStatus.untracked?.length) ? (
-            <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
-              <GitCommit className="w-12 h-12 mb-2 opacity-50" />
-              <p className="text-sm">No changes detected</p>
-            </div>
           ) : (
             <div className={isMobile ? 'pb-4' : ''}>
-              {gitStatus.modified?.map(file => renderFileItem(file, 'M'))}
-              {gitStatus.added?.map(file => renderFileItem(file, 'A'))}
-              {gitStatus.deleted?.map(file => renderFileItem(file, 'D'))}
-              {gitStatus.untracked?.map(file => renderFileItem(file, 'U'))}
+              {/* Staged Changes Section */}
+              {gitStatus?.staged && (gitStatus.staged.modified?.length > 0 || gitStatus.staged.added?.length > 0 || gitStatus.staged.deleted?.length > 0) && (
+                <div className="mb-6">
+                  <div className={`flex items-center justify-between px-4 py-2 bg-green-50 dark:bg-green-900/20 border-b border-green-200 dark:border-green-800`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-green-700 dark:text-green-300">Staged Changes</span>
+                      <span className="text-xs text-green-600 dark:text-green-400">
+                        {(gitStatus.staged.modified?.length || 0) + (gitStatus.staged.added?.length || 0) + (gitStatus.staged.deleted?.length || 0)} files
+                      </span>
+                    </div>
+                  </div>
+                  {gitStatus.staged.modified?.map(file => renderFileItem(file, 'M', true))}
+                  {gitStatus.staged.added?.map(file => renderFileItem(file, 'A', true))}
+                  {gitStatus.staged.deleted?.map(file => renderFileItem(file, 'D', true))}
+                </div>
+              )}
+
+              {/* Changes Section */}
+              {gitStatus?.unstaged && (gitStatus.unstaged.modified?.length > 0 || gitStatus.unstaged.deleted?.length > 0 || gitStatus.unstaged.untracked?.length > 0) && (
+                <div>
+                  <div className={`flex items-center justify-between px-4 py-2 bg-blue-50 dark:bg-blue-900/20 border-b border-blue-200 dark:border-blue-800`}>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Changes</span>
+                      <span className="text-xs text-blue-600 dark:text-blue-400">
+                        {(gitStatus.unstaged.modified?.length || 0) + (gitStatus.unstaged.deleted?.length || 0) + (gitStatus.unstaged.untracked?.length || 0)} files
+                      </span>
+                    </div>
+                  </div>
+                  {gitStatus.unstaged.modified?.map(file => renderFileItem(file, 'M', false))}
+                  {gitStatus.unstaged.deleted?.map(file => renderFileItem(file, 'D', false))}
+                  {gitStatus.unstaged.untracked?.map(file => renderFileItem(file, 'U', false))}
+                </div>
+              )}
+
+              {/* No changes message */}
+              {(!gitStatus?.staged || (gitStatus.staged.modified?.length === 0 && gitStatus.staged.added?.length === 0 && gitStatus.staged.deleted?.length === 0)) &&
+               (!gitStatus?.unstaged || (gitStatus.unstaged.modified?.length === 0 && gitStatus.unstaged.deleted?.length === 0 && gitStatus.unstaged.untracked?.length === 0)) && (
+                <div className="flex flex-col items-center justify-center h-32 text-gray-500 dark:text-gray-400">
+                  <GitCommit className="w-12 h-12 mb-2 opacity-50" />
+                  <p className="text-sm">No changes detected</p>
+                </div>
+              )}
             </div>
           )}
         </div>

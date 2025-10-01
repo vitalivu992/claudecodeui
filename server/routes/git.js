@@ -49,57 +49,82 @@ async function validateGitRepository(projectPath) {
 // Get git status for a project
 router.get('/status', async (req, res) => {
   const { project } = req.query;
-  
+
   if (!project) {
     return res.status(400).json({ error: 'Project name is required' });
   }
 
   try {
     const projectPath = await getActualProjectPath(project);
-    
+
     // Validate git repository
     await validateGitRepository(projectPath);
 
     // Get current branch
     const { stdout: branch } = await execAsync('git rev-parse --abbrev-ref HEAD', { cwd: projectPath });
-    
+
     // Get git status
     const { stdout: statusOutput } = await execAsync('git status --porcelain', { cwd: projectPath });
-    
+
+    // Staged files (first character indicates staged status)
+    const stagedModified = [];
+    const stagedAdded = [];
+    const stagedDeleted = [];
+
+    // Unstaged files (second character indicates unstaged status)
     const modified = [];
-    const added = [];
     const deleted = [];
+
+    // Untracked files
     const untracked = [];
-    
+
     statusOutput.split('\n').forEach(line => {
       if (!line.trim()) return;
-      
-      const status = line.substring(0, 2);
+
+      const indexStatus = line.substring(0, 1); // First character = staged status
+      const workTreeStatus = line.substring(1, 2); // Second character = unstaged status
       const file = line.substring(3);
-      
-      if (status === 'M ' || status === ' M' || status === 'MM') {
+
+      // Staged files (first character)
+      if (indexStatus === 'M') {
+        stagedModified.push(file);
+      } else if (indexStatus === 'A') {
+        stagedAdded.push(file);
+      } else if (indexStatus === 'D') {
+        stagedDeleted.push(file);
+      }
+
+      // Unstaged files (second character)
+      if (workTreeStatus === 'M') {
         modified.push(file);
-      } else if (status === 'A ' || status === 'AM') {
-        added.push(file);
-      } else if (status === 'D ' || status === ' D') {
+      } else if (workTreeStatus === 'D') {
         deleted.push(file);
-      } else if (status === '??') {
+      }
+
+      // Untracked files
+      if (indexStatus === '?' && workTreeStatus === '?') {
         untracked.push(file);
       }
     });
-    
+
     res.json({
       branch: branch.trim(),
-      modified,
-      added,
-      deleted,
-      untracked
+      staged: {
+        modified: stagedModified,
+        added: stagedAdded,
+        deleted: stagedDeleted
+      },
+      unstaged: {
+        modified,
+        deleted,
+        untracked
+      }
     });
   } catch (error) {
     console.error('Git status error:', error);
-    res.json({ 
-      error: error.message.includes('not a git repository') || error.message.includes('Project directory is not a git repository') 
-        ? error.message 
+    res.json({
+      error: error.message.includes('not a git repository') || error.message.includes('Project directory is not a git repository')
+        ? error.message
         : 'Git operation failed',
       details: error.message.includes('not a git repository') || error.message.includes('Project directory is not a git repository')
         ? error.message
@@ -785,10 +810,54 @@ router.post('/discard', async (req, res) => {
   }
 });
 
+// Stage a file
+router.post('/stage', async (req, res) => {
+  const { project, file } = req.body;
+
+  if (!project || !file) {
+    return res.status(400).json({ error: 'Project name and file path are required' });
+  }
+
+  try {
+    const projectPath = await getActualProjectPath(project);
+    await validateGitRepository(projectPath);
+
+    // Stage the file
+    await execAsync(`git add "${file}"`, { cwd: projectPath });
+
+    res.json({ success: true, message: `File ${file} staged successfully` });
+  } catch (error) {
+    console.error('Git stage error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Unstage a file
+router.post('/unstage', async (req, res) => {
+  const { project, file } = req.body;
+
+  if (!project || !file) {
+    return res.status(400).json({ error: 'Project name and file path are required' });
+  }
+
+  try {
+    const projectPath = await getActualProjectPath(project);
+    await validateGitRepository(projectPath);
+
+    // Unstage the file
+    await execAsync(`git reset HEAD "${file}"`, { cwd: projectPath });
+
+    res.json({ success: true, message: `File ${file} unstaged successfully` });
+  } catch (error) {
+    console.error('Git unstage error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Delete untracked file
 router.post('/delete-untracked', async (req, res) => {
   const { project, file } = req.body;
-  
+
   if (!project || !file) {
     return res.status(400).json({ error: 'Project name and file path are required' });
   }
@@ -799,20 +868,20 @@ router.post('/delete-untracked', async (req, res) => {
 
     // Check if file is actually untracked
     const { stdout: statusOutput } = await execAsync(`git status --porcelain "${file}"`, { cwd: projectPath });
-    
+
     if (!statusOutput.trim()) {
       return res.status(400).json({ error: 'File is not untracked or does not exist' });
     }
 
     const status = statusOutput.substring(0, 2);
-    
+
     if (status !== '??') {
       return res.status(400).json({ error: 'File is not untracked. Use discard for tracked files.' });
     }
 
     // Delete the untracked file
     await fs.unlink(path.join(projectPath, file));
-    
+
     res.json({ success: true, message: `Untracked file ${file} deleted successfully` });
   } catch (error) {
     console.error('Git delete untracked error:', error);
