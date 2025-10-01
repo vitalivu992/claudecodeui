@@ -9,6 +9,7 @@ import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
 import Tooltip from './Tooltip';
 import FileEditor from './FileEditor';
+import DiffViewer from './DiffViewer';
 
 function ResizablePanels({
   selectedProject,
@@ -35,6 +36,8 @@ function ResizablePanels({
   const [leftActiveTab, setLeftActiveTab] = useState('files');
   const [rightActiveTab, setRightActiveTab] = useState('chat');
   const [editingFile, setEditingFile] = useState(null);
+  const [diffFile, setDiffFile] = useState(null);
+  const [diffContent, setDiffContent] = useState(null);
 
   const handleFileOpen = (filePath, diffInfo = null) => {
     // Create a file object that FileEditor expects
@@ -46,6 +49,12 @@ function ResizablePanels({
     };
     setEditingFile(file);
     setRightActiveTab('editor'); // Switch to editor tab when opening a file
+  };
+
+  const handleShowDiff = (filePath, diff) => {
+    setDiffFile(filePath);
+    setDiffContent(diff);
+    setRightActiveTab('diff'); // Switch to diff tab when showing diff
   };
 
   
@@ -117,13 +126,16 @@ function ResizablePanels({
                     <h2 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white">
                       {leftActiveTab === 'files' ? 'Project Files' :
                        leftActiveTab === 'git' ? 'Source Control' :
-                                              rightActiveTab === 'chat' ? 'Chat' :
+                       rightActiveTab === 'chat' ? 'Chat' :
                        rightActiveTab === 'editor' ? (editingFile ? editingFile.name : 'Editor') :
+                       rightActiveTab === 'diff' ? (diffFile ? `Diff: ${diffFile.split('/').pop()}` : 'Diff') :
                        'Project'}
                     </h2>
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
                       {rightActiveTab === 'editor' && editingFile ?
                         editingFile.path :
+                        rightActiveTab === 'diff' && diffFile ?
+                        diffFile :
                         selectedProject.displayName
                       }
                     </div>
@@ -172,7 +184,7 @@ function ResizablePanels({
                 )}
                 {leftActiveTab === 'git' && (
                   <div className="h-full">
-                    <GitPanel selectedProject={selectedProject} isMobile={isMobile} />
+                    <GitPanel selectedProject={selectedProject} isMobile={isMobile} onShowDiff={handleShowDiff} />
                   </div>
                 )}
                               </div>
@@ -204,6 +216,15 @@ function ResizablePanels({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                   Editor
+                </button>
+                <button
+                  onClick={() => setRightActiveTab('diff')}
+                  className={`panel-tab ${rightActiveTab === 'diff' ? 'active' : ''}`}
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                  </svg>
+                  Diff
                 </button>
                 </div>
 
@@ -252,6 +273,41 @@ function ResizablePanels({
                           </svg>
                           <h3 className="text-lg font-medium mb-2">No File Open</h3>
                           <p className="text-sm">Select a file from the file tree to open it in the editor</p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {rightActiveTab === 'diff' && (
+                  <div className="h-full">
+                    {diffFile && diffContent ? (
+                      <ErrorBoundary showDetails={true}>
+                        <div className="h-full flex flex-col">
+                          <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {diffFile}
+                              </h3>
+                            </div>
+                          </div>
+                          <div className="flex-1 overflow-auto">
+                            <DiffViewer
+                              diff={diffContent}
+                              fileName={diffFile}
+                              isMobile={isMobile}
+                              wrapText={true}
+                            />
+                          </div>
+                        </div>
+                      </ErrorBoundary>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                        <div className="text-center">
+                          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                          </svg>
+                          <h3 className="text-lg font-medium mb-2">No File Selected</h3>
+                          <p className="text-sm">Select a file from the Staged or Changes list to view its diff</p>
                         </div>
                       </div>
                     )}
