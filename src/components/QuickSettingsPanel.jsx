@@ -15,7 +15,7 @@ import {
   Languages,
   LogOut
 } from 'lucide-react';
-import DarkModeToggle from './DarkModeToggle';
+import ThemeToggle from './ThemeToggle';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -36,7 +36,7 @@ const QuickSettingsPanel = ({
   const [whisperMode, setWhisperMode] = useState(() => {
     return localStorage.getItem('whisperMode') || 'default';
   });
-    const { isDarkMode } = useTheme();
+  const { theme, isDarkMode } = useTheme();
   const { logout, user } = useAuth();
 
   useEffect(() => {
@@ -100,10 +100,18 @@ const QuickSettingsPanel = ({
 
               <div className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
                 <span className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
-                  {isDarkMode ? <Moon className="h-4 w-4 text-gray-600 dark:text-gray-400" /> : <Sun className="h-4 w-4 text-gray-600 dark:text-gray-400" />}
-                  Dark Mode
+                  {theme === 'dark' ? (
+                    <Moon className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                  ) : theme === 'light' ? (
+                    <Sun className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                  ) : (
+                    <svg className="h-4 w-4 text-gray-600 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  )}
+                  Theme
                 </span>
-                <DarkModeToggle />
+                <ThemeToggle />
               </div>
 
               </div>
