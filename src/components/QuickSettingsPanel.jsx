@@ -171,7 +171,7 @@ const QuickSettingsPanel = ({
                   <div className="ml-3 flex-1">
                     <span className="flex items-center gap-2 text-sm font-medium text-gray-900 dark:text-white">
                       <div className="w-2 h-2 rounded-full bg-gray-500" />
-                      Default Mode
+                      Prompt Mode
                     </span>
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       Standard Claude behavior with permission prompts
