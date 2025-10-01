@@ -4,7 +4,6 @@ import './ResizablePanels.css';
 import FileTree from './FileTree';
 import GitPanel from './GitPanel';
 import ChatInterface from './ChatInterface';
-import StandaloneShell from './StandaloneShell';
 import ErrorBoundary from './ErrorBoundary';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
@@ -104,7 +103,6 @@ function ResizablePanels({
                        leftActiveTab === 'git' ? 'Source Control' :
                                               rightActiveTab === 'chat' ? 'Chat' :
                        rightActiveTab === 'editor' ? (editingFile ? editingFile.name : 'Editor') :
-                       rightActiveTab === 'shell' ? 'Shell' :
                        'Project'}
                     </h2>
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -191,16 +189,7 @@ function ResizablePanels({
                   </svg>
                   Editor
                 </button>
-                <button
-                  onClick={() => setRightActiveTab('shell')}
-                  className={`panel-tab ${rightActiveTab === 'shell' ? 'active' : ''}`}
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                  Shell
-                </button>
-              </div>
+                </div>
 
               {/* Right Panel Content */}
               <div className="panel-body">
@@ -250,17 +239,7 @@ function ResizablePanels({
                     )}
                   </div>
                 )}
-                {rightActiveTab === 'shell' && (
-                  <div className="h-full">
-                    <StandaloneShell
-                      project={selectedProject}
-                      session={selectedSession}
-                      isActive={true}
-                      showHeader={false}
-                    />
-                  </div>
-                )}
-              </div>
+                </div>
             </div>
           </Panel>
         </PanelGroup>

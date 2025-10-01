@@ -14,7 +14,6 @@
 import React, { useState, useEffect } from 'react';
 import ChatInterface from './ChatInterface';
 import FileTree from './FileTree';
-import StandaloneShell from './StandaloneShell';
 import GitPanel from './GitPanel';
 import ResizablePanels from './ResizablePanels';
 import ErrorBoundary from './ErrorBoundary';
