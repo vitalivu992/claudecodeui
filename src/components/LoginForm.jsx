@@ -46,9 +46,9 @@ const LoginForm = () => {
                 <MessageSquare className="w-8 h-8 text-primary-foreground" />
               </div>
             </div>
-            <h1 className="text-2xl font-bold text-foreground">Welcome Back</h1>
+            <h1 className="text-2xl font-bold text-foreground">Claude Code UI</h1>
             <p className="text-muted-foreground mt-2">
-              Sign in to your Claude Code UI account
+              Welcome back! Please sign in to your account.
             </p>
           </div>
 
@@ -98,16 +98,13 @@ const LoginForm = () => {
               disabled={isLoading}
               className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-2 px-4 rounded-md transition-colors duration-200"
             >
-              {isLoading ? 'Signing in...' : 'Sign in with Linux PAM'}
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
 
           <div className="text-center">
             <p className="text-sm text-muted-foreground">
               Enter your Linux system credentials
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Uses system authentication via Linux PAM
             </p>
           </div>
         </div>
