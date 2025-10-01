@@ -598,16 +598,7 @@ function Sidebar({
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''} group-hover:rotate-180 transition-transform duration-300`} />
             </Button>
-            <Button
-              variant="default"
-              size="sm"
-              className="h-9 w-9 px-0 bg-primary hover:bg-primary/90 transition-all duration-200 shadow-sm hover:shadow-md"
-              onClick={() => setShowNewProject(true)}
-              title="Create new project (Ctrl+N)"
-            >
-              <FolderPlus className="w-4 h-4" />
-            </Button>
-          </div>
+            </div>
         </div>
         
         {/* Mobile Header */}
@@ -640,13 +631,7 @@ function Sidebar({
               >
                 <RefreshCw className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
-              <button
-                className="w-8 h-8 rounded-md bg-primary text-primary-foreground flex items-center justify-center active:scale-95 transition-all duration-150"
-                onClick={() => setShowNewProject(true)}
-              >
-                <FolderPlus className="w-4 h-4" />
-              </button>
-            </div>
+              </div>
           </div>
         </div>
       </div>
