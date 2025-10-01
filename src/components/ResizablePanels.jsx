@@ -26,7 +26,6 @@ function ResizablePanels({
   autoExpandTools,
   showRawParameters,
   autoScrollToBottom,
-  sendByCtrlEnter,
   isMobile,
   onMenuClick,
   }) {
@@ -212,7 +211,7 @@ function ResizablePanels({
                         autoExpandTools={autoExpandTools}
                         showRawParameters={showRawParameters}
                         autoScrollToBottom={autoScrollToBottom}
-                        sendByCtrlEnter={sendByCtrlEnter}
+                        sendByCtrlEnter={true}
                       />
                     </ErrorBoundary>
                   </div>

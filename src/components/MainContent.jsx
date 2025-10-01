@@ -43,8 +43,7 @@ function MainContent({
   autoExpandTools,        // Auto-expand tool accordions
   showRawParameters,      // Show raw parameters in tool accordions
   autoScrollToBottom,     // Auto-scroll to bottom when new messages arrive
-  sendByCtrlEnter         // Send by Ctrl+Enter mode for East Asian language input
-}) {
+  }) {
 
   if (isLoading) {
     return (
@@ -142,8 +141,7 @@ function MainContent({
           autoExpandTools={autoExpandTools}
           showRawParameters={showRawParameters}
           autoScrollToBottom={autoScrollToBottom}
-          sendByCtrlEnter={sendByCtrlEnter}
-          isMobile={isMobile}
+            isMobile={isMobile}
           onMenuClick={onMenuClick}
         />
       </ErrorBoundary>
