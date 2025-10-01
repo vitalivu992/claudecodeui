@@ -3,7 +3,7 @@ import path from 'path';
 import os from 'os';
 
 /**
- * Get all configured MCP servers (not just TaskMaster)
+ * Get all configured MCP servers
  * @returns {Promise<Object>} All MCP servers configuration
  */
 export async function getAllMCPServers() {
