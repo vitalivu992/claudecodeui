@@ -1,6 +1,6 @@
 {
   "name": "@vitalivu992/claude-code-ui",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "A web-based UI for Claude Code CLI - Personal Fork",
   "type": "module",
   "main": "server/index.js",
