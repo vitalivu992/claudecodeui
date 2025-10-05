@@ -26,6 +26,8 @@ import CursorLogo from './CursorLogo.jsx';
 import ClaudeStatus from './ClaudeStatus';
 import { MicButton } from './MicButton.jsx';
 import { api, authenticatedFetch } from '../utils/api';
+import ConversationTokenTracker from './ConversationTokenTracker';
+import MessageTokenIndicator from './MessageTokenIndicator';
 
 
 // Format "Claude AI usage limit reached|<epoch>" into a local time string
@@ -198,7 +200,7 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
       {message.type === 'user' ? (
         /* User message bubble on the right */
         <div className="flex items-end space-x-0 sm:space-x-3 w-full sm:w-auto sm:max-w-[85%] md:max-w-md lg:max-w-lg xl:max-w-xl">
-          <div className="bg-blue-600 text-white rounded-2xl rounded-br-md px-3 sm:px-4 py-2 shadow-sm flex-1 sm:flex-initial">
+          <div className="bg-blue-600 text-white rounded-2xl rounded-br-md px-3 sm:px-4 py-2 shadow-sm flex-1 sm:flex-initial relative">
             <div className="text-sm whitespace-pre-wrap break-words">
               {message.content}
             </div>
@@ -218,6 +220,13 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
             <div className="text-xs text-blue-100 mt-1 text-right">
               {new Date(message.timestamp).toLocaleTimeString()}
             </div>
+
+            {/* Message Token Indicator */}
+            <MessageTokenIndicator
+              message={message}
+              position="bottom-right"
+              className="absolute -top-2 -right-2"
+            />
           </div>
           {!isGrouped && (
             <div className="hidden sm:flex w-8 h-8 bg-blue-600 rounded-full items-center justify-center text-white text-sm flex-shrink-0">
@@ -252,8 +261,8 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
               </div>
             </div>
           )}
-          
-          <div className="w-full">
+
+          <div className="w-full relative">
             
             {message.isToolUse && !['Read', 'TodoWrite', 'TodoRead'].includes(message.toolName) ? (
               <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-2 sm:p-3 mb-2">
@@ -1108,7 +1117,14 @@ const MessageComponent = memo(({ message, index, prevMessage, createDiff, onFile
                 )}
               </div>
             )}
-            
+
+            {/* Message Token Indicator */}
+            <MessageTokenIndicator
+              message={message}
+              position="top-right"
+              className="absolute top-2 right-2"
+            />
+
             <div className={`text-xs text-gray-500 dark:text-gray-400 mt-1 ${isGrouped ? 'opacity-0 group-hover:opacity-100' : ''}`}>
               {new Date(message.timestamp).toLocaleTimeString()}
             </div>
@@ -1214,6 +1230,11 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
   const [isTextareaExpanded, setIsTextareaExpanded] = useState(false);
   const [selectedCommandIndex, setSelectedCommandIndex] = useState(-1);
   const [slashPosition, setSlashPosition] = useState(-1);
+
+  // Token tracking state
+  const [currentStreamingTokens, setCurrentStreamingTokens] = useState(0);
+  const [totalSessionTokens, setTotalSessionTokens] = useState(0);
+  const streamingTokenRef = useRef(0);
   const [visibleMessageCount, setVisibleMessageCount] = useState(100);
   const [claudeStatus, setClaudeStatus] = useState(null);
   const [provider, setProvider] = useState(() => {
@@ -1959,6 +1980,11 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
             if (messageData.type === 'content_block_delta' && messageData.delta?.text) {
               // Buffer deltas and flush periodically to reduce rerenders
               streamBufferRef.current += messageData.delta.text;
+
+              // Update streaming token count (rough estimation: 1 token ≈ 4 characters)
+              const estimatedTokens = Math.ceil(messageData.delta.text.length / 4);
+              streamingTokenRef.current += estimatedTokens;
+              setCurrentStreamingTokens(streamingTokenRef.current);
               if (!streamTimerRef.current) {
                 streamTimerRef.current = setTimeout(() => {
                   const chunk = streamBufferRef.current;
@@ -2320,7 +2346,11 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
           setCanAbortSession(false);
           setClaudeStatus(null);
 
-          
+          // Reset streaming token count and add to total
+          setTotalSessionTokens(prev => prev + currentStreamingTokens);
+          setCurrentStreamingTokens(0);
+          streamingTokenRef.current = 0;
+
           // Session Protection: Mark session as inactive to re-enable automatic project updates
           // Conversation is complete, safe to allow project updates again
           // Use real session ID if available, otherwise use pending session ID
@@ -2351,6 +2381,10 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
           setIsLoading(false);
           setCanAbortSession(false);
           setClaudeStatus(null);
+
+          // Reset token counters on abort
+          setCurrentStreamingTokens(0);
+          streamingTokenRef.current = 0;
           
           // Session Protection: Mark session as inactive when aborted
           // User or system aborted the conversation, re-enable project updates
@@ -2719,6 +2753,11 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
     setChatMessages(prev => [...prev, userMessage]);
     setIsLoading(true);
     setCanAbortSession(true);
+
+    // Reset token counters for new message
+    setCurrentStreamingTokens(0);
+    streamingTokenRef.current = 0;
+
     // Set a default status when starting
     setClaudeStatus({
       text: 'Processing',
@@ -3137,7 +3176,20 @@ function ChatInterface({ selectedProject, selectedSession, ws, sendMessage, mess
                 </button>
               </div>
             )}
-            
+
+            {/* Conversation Token Tracker */}
+            {visibleMessages.length > 0 && (
+              <div className="mb-4">
+                <ConversationTokenTracker
+                  messages={visibleMessages}
+                  isStreaming={isLoading}
+                  currentStreamingTokens={currentStreamingTokens}
+                  compact={false}
+                  showHistory={true}
+                />
+              </div>
+            )}
+
             {visibleMessages.map((message, index) => {
               const prevMessage = index > 0 ? visibleMessages[index - 1] : null;
               

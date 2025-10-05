@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../lib/utils';
+import TokenCounter from './TokenCounter';
 
 function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
   const [elapsedTime, setElapsedTime] = useState(0);
@@ -72,8 +73,18 @@ function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
                 {tokens > 0 && (
                   <>
                     <span className="text-gray-400">·</span>
-                    <span className="text-gray-300 text-sm hidden sm:inline">⚒ {tokens.toLocaleString()} tokens</span>
-                    <span className="text-gray-300 text-sm sm:hidden">⚒ {tokens.toLocaleString()}</span>
+                    <TokenCounter
+                      totalTokens={tokens}
+                      streaming={true}
+                      compact={true}
+                      className="hidden sm:inline"
+                    />
+                    <TokenCounter
+                      totalTokens={tokens}
+                      streaming={true}
+                      compact={true}
+                      className="sm:hidden"
+                    />
                   </>
                 )}
                 <span className="text-gray-400 hidden sm:inline">·</span>
