@@ -35,8 +35,8 @@ github:
   script:
     - git remote add github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/vitalivu992/claudecodeui.git || git remote set-url github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/vitalivu992/claudecodeui.git
     - git fetch github
-    - git pull --rebase origin github
-    - git push github
+    - git pull --rebase github master
+    - git push github master
   dependencies:
     - build
   only:
