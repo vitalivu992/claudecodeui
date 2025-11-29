@@ -9,7 +9,7 @@ variables:
 # Build stage - build the application
 build:
   stage: build
-  image: node:18-alpine
+  image: node:20-alpine
   cache:
     paths:
       - node_modules/
