@@ -30,16 +30,14 @@ mirror:
   image: ubuntu:latest
   before_script:
     - apt-get update && apt-get install -y git
-    - git config --global user.email "gitlab-ci@$(hostname).local"
-    - git config --global user.name "GitLab CI"
   script:
-    # - git remote add github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/vitalivu992/claudecodeui.git || git remote set-url github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/vitalivu992/claudecodeui.git
-    # - git fetch github
-    # - git checkout -B master github/master
-    # - git push github master
+    - git remote add github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/vitalivu992/claudecodeui.git || git remote set-url github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/vitalivu992/claudecodeui.git
+    - git fetch github
+    - git checkout -B master github/master
+    - git push -u github master
     - git remote add gitea $GITEA_TOKEN_URL/lvsoftwares/claudecodeui.git || git remote set-url gitea $GITEA_TOKEN_URL/lvsoftwares/claudecodeui.git
-    # - git fetch gitea
-    # - git checkout -B master gitea/master
+    - git fetch gitea
+    - git checkout -B master gitea/master
     - git push -u gitea master
     
   dependencies:
