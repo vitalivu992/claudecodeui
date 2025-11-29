@@ -40,7 +40,7 @@ mirror:
     - git remote add gitea $GITEA_TOKEN_URL/lvsoftwares/claudecodeui.git || git remote set-url gitea $GITEA_TOKEN_URL/lvsoftwares/claudecodeui.git
     # - git fetch gitea
     # - git checkout -B master gitea/master
-    - git push gitea master
+    - git push -u gitea master
     
   dependencies:
     - build
