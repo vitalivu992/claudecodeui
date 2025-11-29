@@ -6,17 +6,17 @@ variables:
   GIT_STRATEGY: clone
   GIT_DEPTH: 0
 
-# Build stage - build the application with Docker
+# Build stage - build the application
 build:
   stage: build
-  image: docker:latest
-  services:
-    - docker:dind
+  image: node:22
+    paths:
+      - node_modules/
+  before_script:
+    - apt-get update && apt-get install -y python3 make g++
   script:
-    - docker build -t $CI_PROJECT_NAME:$CI_COMMIT_SHA .
-    - docker create --name extract $CI_PROJECT_NAME:$CI_COMMIT_SHA
-    - docker cp extract:/app/dist ./dist
-    - docker rm extract
+    - npm ci
+    - npm run build
   artifacts:
     paths:
       - dist/
