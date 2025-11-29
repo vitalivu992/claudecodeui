@@ -29,7 +29,7 @@ build:
 
 mirror_github:
   stage: sync
-  image: ubuntu:latest
+  image: alpine/git
   before_script:
     - apt-get update && apt-get install -y git
   script:
@@ -45,7 +45,7 @@ mirror_github:
 
 mirror_gitea:
   stage: sync
-  image: ubuntu:latest
+  image: alpine/git
   before_script:
     - apt-get update && apt-get install -y git
   script:
