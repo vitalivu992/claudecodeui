@@ -6,17 +6,17 @@ variables:
   GIT_STRATEGY: clone
   GIT_DEPTH: 0
 
-# Build stage - build the application
+# Build stage - build the application with Docker
 build:
   stage: build
-  image: node:20-alpine
-  cache:
-    paths:
-      - node_modules/
+  image: docker:latest
+  services:
+    - docker:dind
   script:
-    - npm install -g node-gyp
-    - npm ci
-    - npm run build
+    - docker build -t $CI_PROJECT_NAME:$CI_COMMIT_SHA .
+    - docker create --name extract $CI_PROJECT_NAME:$CI_COMMIT_SHA
+    - docker cp extract:/app/dist ./dist
+    - docker rm extract
   artifacts:
     paths:
       - dist/

@@ -1,0 +1,96 @@
+# Node modules (will be rebuilt in container)
+node_modules
+npm-debug.log*
+
+# Development files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts (will be rebuilt)
+dist
+build
+
+# Git
+.git
+.gitignore
+
+# CI/CD
+.gitlab-ci.yml
+.github
+
+# Documentation
+README.md
+CHANGELOG.md
+LICENSE
+CLAUDE.md
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage
+
+# Dependency directories
+jspm_packages/
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# Temporary folders
+tmp/
+temp/
+
+# Test files
+test/
+tests/
+__tests__/
+*.test.js
+*.spec.js
+
+# Development tools
+.eslintrc*
+.prettierrc*
+jest.config.js
+vitest.config.js
+
+# Other development files
+docker-compose*.yml
+Dockerfile*
+.dockerignore
