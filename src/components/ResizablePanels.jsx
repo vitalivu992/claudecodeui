@@ -4,6 +4,7 @@ import './ResizablePanels.css';
 import FileTree from './FileTree';
 import GitPanel from './GitPanel';
 import ChatInterface from './ChatInterface';
+import StandaloneShell from './StandaloneShell';
 import ErrorBoundary from './ErrorBoundary';
 import ClaudeLogo from './ClaudeLogo';
 import CursorLogo from './CursorLogo';
@@ -129,6 +130,7 @@ function ResizablePanels({
                        rightActiveTab === 'chat' ? 'Chat' :
                        rightActiveTab === 'editor' ? (editingFile ? editingFile.name : 'Editor') :
                        rightActiveTab === 'diff' ? (diffFile ? `Diff: ${diffFile.split('/').pop()}` : 'Diff') :
+                       rightActiveTab === 'terminal' ? 'Terminal' :
                        'Project'}
                     </h2>
                     <div className="text-xs text-gray-500 dark:text-gray-400 truncate">
@@ -136,6 +138,8 @@ function ResizablePanels({
                         editingFile.path :
                         rightActiveTab === 'diff' && diffFile ?
                         diffFile :
+                        rightActiveTab === 'terminal' ?
+                        `Shell in ${selectedProject.displayName}` :
                         selectedProject.displayName
                       }
                     </div>
@@ -226,6 +230,17 @@ function ResizablePanels({
                   </svg>
                   Diff
                 </button>
+                {!isMobile && (
+                  <button
+                    onClick={() => setRightActiveTab('terminal')}
+                    className={`panel-tab ${rightActiveTab === 'terminal' ? 'active' : ''}`}
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                    </svg>
+                    Terminal
+                  </button>
+                )}
                 </div>
 
               {/* Right Panel Content */}
@@ -311,6 +326,20 @@ function ResizablePanels({
                         </div>
                       </div>
                     )}
+                  </div>
+                )}
+                {rightActiveTab === 'terminal' && !isMobile && (
+                  <div className="h-full">
+                    <ErrorBoundary showDetails={true}>
+                      <StandaloneShell
+                        project={selectedProject}
+                        session={null}
+                        isActive={true}
+                        isPlainShell={true}
+                        autoConnect={false}
+                        showHeader={false}
+                      />
+                    </ErrorBoundary>
                   </div>
                 )}
                 </div>
