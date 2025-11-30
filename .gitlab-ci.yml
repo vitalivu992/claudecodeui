@@ -29,7 +29,9 @@ build:
 
 mirror_github:
   stage: sync
-  image: alpine/git
+  image: ubuntu:latest
+  before_script:
+    - apt-get update && apt-get install -y git
   script:
     - git remote add github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_ORG/$CI_PROJECT_NAME.git || git remote set-url github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_ORG/$CI_PROJECT_NAME.git
     - git checkout master
@@ -43,7 +45,9 @@ mirror_github:
 
 mirror_gitea:
   stage: sync
-  image: alpine/git
+  image: ubuntu:latest
+  before_script:
+    - apt-get update && apt-get install -y git
   script:
     - git remote add gitea $GITEA_TOKEN_URL/$GITEA_ORG/$CI_PROJECT_NAME.git || git remote set-url gitea $GITEA_TOKEN_URL/$GITEA_ORG/$CI_PROJECT_NAME.git
     - git checkout master
