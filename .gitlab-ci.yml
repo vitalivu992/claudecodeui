@@ -32,6 +32,8 @@ mirror_github:
   image: ubuntu:latest
   before_script:
     - apt-get update && apt-get install -y git
+    - git config --global user.email "linh.vuthai@gmail.com"
+    - git config --global user.name "Linh Vu"
   script:
     - git remote add github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_ORG/$CI_PROJECT_NAME.git || git remote set-url github https://$GITHUB_USERNAME:$GITHUB_TOKEN@github.com/$GITHUB_ORG/$CI_PROJECT_NAME.git
     - git checkout master
@@ -48,6 +50,8 @@ mirror_gitea:
   image: ubuntu:latest
   before_script:
     - apt-get update && apt-get install -y git
+    - git config --global user.email "linh.vuthai@gmail.com"
+    - git config --global user.name "Linh Vu"
   script:
     - git remote add gitea $GITEA_TOKEN_URL/$GITEA_ORG/$CI_PROJECT_NAME.git || git remote set-url gitea $GITEA_TOKEN_URL/$GITEA_ORG/$CI_PROJECT_NAME.git
     - git checkout master
