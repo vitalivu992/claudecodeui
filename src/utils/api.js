@@ -81,12 +81,20 @@ export const api = {
     }),
   getFiles: (projectName) =>
     authenticatedFetch(`/api/projects/${projectName}/files`),
-  transcribe: (formData) =>
-    authenticatedFetch('/api/transcribe', {
+  transcribe: (formData) => {
+    const token = localStorage.getItem('auth-token');
+    const headers = {};
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return fetch('/api/transcribe', {
       method: 'POST',
       body: formData,
-      headers: {}, // Let browser set Content-Type for FormData
-    }),
+      headers, // Let browser set Content-Type for FormData
+    });
+  },
 
     
   // Browse filesystem for project suggestions
