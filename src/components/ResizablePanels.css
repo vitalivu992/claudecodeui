@@ -8,6 +8,11 @@
   width: 100%;
 }
 
+/* Respect vertical panel groups */
+[data-panel-group][data-direction="vertical"] {
+  flex-direction: column;
+}
+
 [data-panel] {
   flex: 1;
   overflow: hidden;
@@ -92,6 +97,32 @@
   position: relative;
   transition: background-color 0.2s ease;
   cursor: col-resize;
+}
+
+/* Adjust handles when inside vertical groups */
+[data-panel-group][data-direction="vertical"] .panel-resize-handle,
+[data-panel-group][data-direction="vertical"] [data-panel-resize-handle] {
+  width: 100%;
+  height: 4px;
+  cursor: row-resize;
+}
+
+[data-panel-group][data-direction="vertical"] [data-panel-resize-handle]::before {
+  width: 24px;
+  height: 3px;
+}
+
+/* Explicit vertical handle helper class */
+.panel-resize-handle-vertical {
+  width: 100%;
+  height: 4px;
+  cursor: row-resize;
+  background: #e5e7eb;
+}
+
+.panel-resize-handle-vertical::before {
+  width: 24px;
+  height: 3px;
 }
 
 /* Ensure panels don't collapse completely */

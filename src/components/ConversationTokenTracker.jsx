@@ -19,16 +19,16 @@ function ConversationTokenTracker({
 
   // Calculate token statistics from messages
   const tokenStats = useMemo(() => {
-    let inputTokens = 0;
-    let outputTokens = 0;
-    let messageCount = messages.length;
+    let totalInputTokens = 0;
+    let totalOutputTokens = 0;
+    const messageCount = messages.length;
     let turnCount = 0;
 
     messages.forEach((message, index) => {
       if (message.role === 'user') {
         // Estimate input tokens (rough approximation: 1 token ≈ 4 characters)
         if (message.content) {
-          inputTokens += Math.ceil(message.content.length / 4);
+          totalInputTokens += Math.ceil(message.content.length / 4);
         }
         if (index > 0 && messages[index - 1].role !== 'user') {
           turnCount++;
@@ -36,29 +36,29 @@ function ConversationTokenTracker({
       } else if (message.role === 'assistant') {
         // Estimate output tokens
         if (message.content) {
-          outputTokens += Math.ceil(message.content.length / 4);
+          totalOutputTokens += Math.ceil(message.content.length / 4);
         }
       }
 
       // Include actual token counts if available in message metadata
       if (message.tokens) {
         if (message.role === 'user') {
-          inputTokens = message.tokens.input || inputTokens;
+          totalInputTokens = message.tokens.input || totalInputTokens;
         } else if (message.role === 'assistant') {
-          outputTokens = message.tokens.output || outputTokens;
+          totalOutputTokens = message.tokens.output || totalOutputTokens;
         }
         if (message.tokens.total) {
           const total = message.tokens.total;
-          inputTokens = message.tokens.input || total * 0.3; // Rough split
-          outputTokens = message.tokens.output || total * 0.7;
+          totalInputTokens = message.tokens.input || total * 0.3; // Rough split
+          totalOutputTokens = message.tokens.output || total * 0.7;
         }
       }
     });
 
     return {
-      inputTokens,
-      outputTokens,
-      totalTokens: inputTokens + outputTokens,
+      totalInputTokens,
+      totalOutputTokens,
+      totalTokens: totalInputTokens + totalOutputTokens,
       messageCount,
       turnCount: turnCount || Math.ceil(messageCount / 2)
     };

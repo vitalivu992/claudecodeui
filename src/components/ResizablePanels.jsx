@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels';
 import './ResizablePanels.css';
 import FileTree from './FileTree';
@@ -15,6 +15,8 @@ import DiffViewer from './DiffViewer';
 function ResizablePanels({
   selectedProject,
   selectedSession,
+  activeTab,
+  setActiveTab,
   ws,
   sendMessage,
   messages,
@@ -33,35 +35,46 @@ function ResizablePanels({
   isMobile,
   onMenuClick,
   onSidebarToggle,
-  }) {
-  const [leftActiveTab, setLeftActiveTab] = useState('files');
-  const [rightActiveTab, setRightActiveTab] = useState('chat');
+}) {
+  const [leftActiveTab, setLeftActiveTab] = useState(() => (activeTab === 'git' ? 'git' : 'files'));
   const [editingFile, setEditingFile] = useState(null);
   const [diffFile, setDiffFile] = useState(null);
   const [diffContent, setDiffContent] = useState(null);
+  const [shellCollapsed, setShellCollapsed] = useState(false);
+  const [shellMode, setShellMode] = useState({
+    label: 'bash',
+    command: 'bash',
+    isPlainShell: true
+  });
+  const [shellInstanceKey, setShellInstanceKey] = useState(0);
+
+  // Sync left tab with external activeTab (mobile nav)
+  useEffect(() => {
+    if (activeTab === 'files' || activeTab === 'git') {
+      setLeftActiveTab(activeTab);
+    }
+  }, [activeTab]);
 
   const handleFileOpen = (filePath, diffInfo = null) => {
-    // Create a file object that FileEditor expects
     const file = {
       name: filePath.split('/').pop(),
       path: filePath,
       projectName: selectedProject?.name,
-      diffInfo: diffInfo // Pass along diff information if available
+      diffInfo: diffInfo,
     };
     setEditingFile(file);
-    setRightActiveTab('editor'); // Switch to editor tab when opening a file
+    if (setActiveTab) setActiveTab('files');
   };
 
   const handleShowDiff = (filePath, diff) => {
     setDiffFile(filePath);
     setDiffContent(diff);
-    setRightActiveTab('diff'); // Switch to diff tab when showing diff
+    if (setActiveTab) setActiveTab('git');
   };
 
-  
   return (
     <div className="h-full flex flex-col">
-      {/* Header with project info and mobile menu */}
+      {/* Header */}
       <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 p-3 sm:p-4 pwa-header-safe flex-shrink-0">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-3">
@@ -79,7 +92,6 @@ function ResizablePanels({
                 </svg>
               </button>
             )}
-            {/* Desktop Sidebar Toggle Button */}
             {!isMobile && (
               <Tooltip content="Toggle sidebar" side="bottom">
                 <button
@@ -94,7 +106,7 @@ function ResizablePanels({
               </Tooltip>
             )}
             <div className="min-w-0 flex items-center gap-2">
-              {rightActiveTab === 'chat' && selectedSession && (
+              {selectedSession && (
                 <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                   {selectedSession.__provider === 'cursor' ? (
                     <CursorLogo className="w-5 h-5" />
@@ -151,16 +163,23 @@ function ResizablePanels({
         </div>
       </div>
 
-      {/* Resizable Panels */}
+      {/* Main Layout: Sidebar | Work Area (Editor/Diff + Shell) | Chat */}
       <div className="flex-1 panel-content">
         <PanelGroup direction="horizontal" className="panel-group">
-          {/* Left Panel */}
-          <Panel defaultSize={30} minSize={20} maxSize={50} className="panel panel-left">
-            <div className="panel-content bg-white dark:bg-gray-900">
-              {/* Left Panel Tabs */}
+          {/* Navigation Panel (Files / Source Control) */}
+          <Panel defaultSize={25} minSize={18} maxSize={35} className="panel panel-left">
+            <div
+              className="panel-content bg-white dark:bg-gray-900"
+              onClick={() => {
+                if (shellCollapsed) setShellCollapsed(false);
+              }}
+            >
               <div className="panel-tabs">
                 <button
-                  onClick={() => setLeftActiveTab('files')}
+                  onClick={() => {
+                    setLeftActiveTab('files');
+                    if (setActiveTab) setActiveTab('files');
+                  }}
                   className={`panel-tab ${leftActiveTab === 'files' ? 'active' : ''}`}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -169,7 +188,10 @@ function ResizablePanels({
                   Files
                 </button>
                 <button
-                  onClick={() => setLeftActiveTab('git')}
+                  onClick={() => {
+                    setLeftActiveTab('git');
+                    if (setActiveTab) setActiveTab('git');
+                  }}
                   className={`panel-tab ${leftActiveTab === 'git' ? 'active' : ''}`}
                 >
                   <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 448 512">
@@ -177,9 +199,7 @@ function ResizablePanels({
                   </svg>
                   Source Control
                 </button>
-                              </div>
-
-              {/* Left Panel Content */}
+              </div>
               <div className="panel-body">
                 {leftActiveTab === 'files' && (
                   <div className="h-full">
@@ -191,11 +211,10 @@ function ResizablePanels({
                     <GitPanel selectedProject={selectedProject} isMobile={isMobile} onShowDiff={handleShowDiff} />
                   </div>
                 )}
-                              </div>
+              </div>
             </div>
           </Panel>
 
-          {/* Resize Handle */}
           <PanelResizeHandle className="panel-resize-handle" />
 
           {/* Right Panel */}
@@ -289,41 +308,40 @@ function ResizablePanels({
                           <h3 className="text-lg font-medium mb-2">No File Open</h3>
                           <p className="text-sm">Select a file from the file tree to open it in the editor</p>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {rightActiveTab === 'diff' && (
-                  <div className="h-full">
-                    {diffFile && diffContent ? (
-                      <ErrorBoundary showDetails={true}>
-                        <div className="h-full flex flex-col">
-                          <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800">
-                            <div className="flex items-center justify-between">
-                              <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                {diffFile}
-                              </h3>
+                      )
+                    ) : (
+                      <div className="h-full">
+                        {diffFile && diffContent ? (
+                          <ErrorBoundary showDetails={true}>
+                            <div className="h-full flex flex-col">
+                              <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800">
+                                <div className="flex items-center justify-between">
+                                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                    {diffFile}
+                                  </h3>
+                                </div>
+                              </div>
+                              <div className="flex-1 overflow-auto">
+                                <DiffViewer
+                                  diff={diffContent}
+                                  fileName={diffFile}
+                                  isMobile={isMobile}
+                                  wrapText={true}
+                                />
+                              </div>
+                            </div>
+                          </ErrorBoundary>
+                        ) : (
+                          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                            <div className="text-center">
+                              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                              </svg>
+                              <h3 className="text-lg font-medium mb-2">No File Selected</h3>
+                              <p className="text-sm">Select a file from Source Control to view its diff</p>
                             </div>
                           </div>
-                          <div className="flex-1 overflow-auto">
-                            <DiffViewer
-                              diff={diffContent}
-                              fileName={diffFile}
-                              isMobile={isMobile}
-                              wrapText={true}
-                            />
-                          </div>
-                        </div>
-                      </ErrorBoundary>
-                    ) : (
-                      <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                        <div className="text-center">
-                          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                          </svg>
-                          <h3 className="text-lg font-medium mb-2">No File Selected</h3>
-                          <p className="text-sm">Select a file from the Staged or Changes list to view its diff</p>
-                        </div>
+                        )}
                       </div>
                     )}
                   </div>

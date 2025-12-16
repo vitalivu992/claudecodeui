@@ -29,7 +29,7 @@ if (typeof document !== 'undefined') {
 // Global store for shell sessions to persist across tab switches
 const shellSessions = new Map();
 
-function Shell({ selectedProject, selectedSession, isActive, initialCommand, isPlainShell = false, onProcessComplete }) {
+function Shell({ selectedProject, selectedSession, isActive, initialCommand, isPlainShell = false, onProcessComplete, autoConnect = false, sessionKey: customSessionKey = null }) {
   const terminalRef = useRef(null);
   const terminal = useRef(null);
   const fitAddon = useRef(null);
@@ -135,8 +135,8 @@ function Shell({ selectedProject, selectedSession, isActive, initialCommand, isP
       return;
     }
 
-    // Create session key for this project/session combination
-    const sessionKey = selectedSession?.id || `project-${selectedProject.name}`;
+    // Create session key for this project/session combination (allow override)
+    const sessionKey = customSessionKey || selectedSession?.id || `project-${selectedProject.name}`;
     
     // Check if we have an existing session
     const existingSession = shellSessions.get(sessionKey);
@@ -376,6 +376,13 @@ function Shell({ selectedProject, selectedSession, isActive, initialCommand, isP
       }
     }, 100);
   }, [isActive, isInitialized]);
+
+  // Auto-connect if requested once terminal is ready
+  useEffect(() => {
+    if (!autoConnect) return;
+    if (!isInitialized || isConnected || isConnecting) return;
+    connectWebSocket();
+  }, [autoConnect, isInitialized, isConnected, isConnecting]);
 
   // WebSocket connection function (called manually)
   const connectWebSocket = async () => {

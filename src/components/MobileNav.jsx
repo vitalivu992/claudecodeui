@@ -1,5 +1,5 @@
 import React from 'react';
-import { MessageSquare, Folder, GitBranch, Globe } from 'lucide-react';
+import { MessageSquare, Folder, GitBranch } from 'lucide-react';
 
 function MobileNav({ activeTab, setActiveTab, isInputFocused }) {
   // Detect dark mode

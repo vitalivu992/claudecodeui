@@ -25,6 +25,7 @@ function StandaloneShell({
   isActive = true,
   isPlainShell = null, // Auto-detect: true if command provided, false if session provided
   autoConnect = true,
+  sessionKey = null,
   onComplete = null,
   onClose = null,
   title = null,
@@ -96,6 +97,8 @@ function StandaloneShell({
           isActive={isActive}
           initialCommand={command}
           isPlainShell={shouldUsePlainShell}
+          autoConnect={autoConnect}
+          sessionKey={sessionKey}
           onProcessComplete={handleProcessComplete}
         />
       </div>
