@@ -18,7 +18,7 @@ export const useWebSocketContext = () => {
 
 export const WebSocketProvider = ({ children }) => {
   const webSocketData = useWebSocket();
-  
+
   return (
     <WebSocketContext.Provider value={webSocketData}>
       {children}

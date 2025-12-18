@@ -1,28 +1,29 @@
-import '@testing-library/jest-dom'
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Mock WebSocket for tests
 global.WebSocket = class MockWebSocket {
   constructor(url) {
-    this.url = url
-    this.readyState = 1
-    this.onopen = null
-    this.onclose = null
-    this.onmessage = null
-    this.onerror = null
+    this.url = url;
+    this.readyState = 1;
+    this.onopen = null;
+    this.onclose = null;
+    this.onmessage = null;
+    this.onerror = null;
   }
 
-  send(data) {
+  send(_data) {
     // Mock implementation
   }
 
   close() {
-    this.readyState = 3
-    if (this.onclose) this.onclose()
+    this.readyState = 3;
+    if (this.onclose) this.onclose();
   }
-}
+};
 
 // Mock fetch if needed
-global.fetch = vi.fn()
+global.fetch = vi.fn();
 
 // Mock localStorage
 const localStorageMock = {
@@ -30,5 +31,5 @@ const localStorageMock = {
   setItem: vi.fn(),
   removeItem: vi.fn(),
   clear: vi.fn()
-}
-global.localStorage = localStorageMock
+};
+global.localStorage = localStorageMock;

@@ -44,7 +44,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
   const [activeTab, setActiveTab] = useState('tools');
   const [jsonValidationError, setJsonValidationError] = useState('');
   const [toolsProvider, setToolsProvider] = useState('claude'); // 'claude' or 'cursor'
-  
+
   // Cursor-specific states
   const [cursorAllowedCommands, setCursorAllowedCommands] = useState([]);
   const [cursorDisallowedCommands, setCursorDisallowedCommands] = useState([]);
@@ -74,7 +74,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
     'WebFetch',
     'WebSearch'
   ];
-  
+
   // Common shell commands for Cursor
   const commonCursorCommands = [
     'Shell(ls)',
@@ -101,7 +101,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setCursorMcpServers(data.servers || []);
@@ -112,12 +112,12 @@ function Settings({ isOpen, onClose, projects = [] }) {
       console.error('Error fetching Cursor MCP servers:', error);
     }
   };
-  
+
   // MCP API functions
   const fetchMcpServers = async () => {
     try {
       const token = localStorage.getItem('auth-token');
-      
+
       // Try to read directly from config files for complete details
       const configResponse = await fetch('/api/mcp/config/read', {
         headers: {
@@ -125,7 +125,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (configResponse.ok) {
         const configData = await configResponse.json();
         if (configData.success && configData.servers) {
@@ -133,7 +133,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           return;
         }
       }
-      
+
       // Fallback to Claude CLI
       const cliResponse = await fetch('/api/mcp/cli/list', {
         headers: {
@@ -141,7 +141,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (cliResponse.ok) {
         const cliData = await cliResponse.json();
         if (cliData.success && cliData.servers) {
@@ -166,7 +166,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           return;
         }
       }
-      
+
       // Final fallback to direct config reading
       const response = await fetch('/api/mcp/servers?scope=user', {
         headers: {
@@ -174,7 +174,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setMcpServers(data.servers || []);
@@ -189,12 +189,12 @@ function Settings({ isOpen, onClose, projects = [] }) {
   const saveMcpServer = async (serverData) => {
     try {
       const token = localStorage.getItem('auth-token');
-      
+
       if (editingMcpServer) {
         // For editing, remove old server and add new one
         await deleteMcpServer(editingMcpServer.id, 'user');
       }
-      
+
       // Use Claude CLI to add the server
       const response = await fetch('/api/mcp/cli/add', {
         method: 'POST',
@@ -214,7 +214,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           env: serverData.config?.env || {}
         })
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -236,7 +236,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
   const deleteMcpServer = async (serverId, scope = 'user') => {
     try {
       const token = localStorage.getItem('auth-token');
-      
+
       // Use Claude CLI to remove the server with proper scope
       const response = await fetch(`/api/mcp/cli/remove/${serverId}?scope=${scope}`, {
         method: 'DELETE',
@@ -245,7 +245,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -274,7 +274,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         return data.testResult;
@@ -299,7 +299,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         return data.toolsResult;
@@ -321,10 +321,10 @@ function Settings({ isOpen, onClose, projects = [] }) {
 
   const loadSettings = async () => {
     try {
-      
+
       // Load Claude settings from localStorage
       const savedSettings = localStorage.getItem('claude-settings');
-      
+
       if (savedSettings) {
         const settings = JSON.parse(savedSettings);
         setAllowedTools(settings.allowedTools || []);
@@ -336,10 +336,10 @@ function Settings({ isOpen, onClose, projects = [] }) {
         setDisallowedTools([]);
         setSkipPermissions(false);
       }
-      
+
       // Load Cursor settings from localStorage
       const savedCursorSettings = localStorage.getItem('cursor-tools-settings');
-      
+
       if (savedCursorSettings) {
         const cursorSettings = JSON.parse(savedCursorSettings);
         setCursorAllowedCommands(cursorSettings.allowedCommands || []);
@@ -354,7 +354,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
 
       // Load MCP servers from API
       await fetchMcpServers();
-      
+
       // Load Cursor MCP servers
       await fetchCursorMcpServers();
     } catch (error) {
@@ -389,7 +389,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
   const saveSettings = () => {
     setIsSaving(true);
     setSaveStatus(null);
-    
+
     try {
       // Save Claude settings
       const claudeSettings = {
@@ -398,7 +398,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
         skipPermissions,
         lastUpdated: new Date().toISOString()
       };
-      
+
       // Save Cursor settings
       const cursorSettings = {
         allowedCommands: cursorAllowedCommands,
@@ -406,13 +406,13 @@ function Settings({ isOpen, onClose, projects = [] }) {
         skipPermissions: cursorSkipPermissions,
         lastUpdated: new Date().toISOString()
       };
-      
+
       // Save to localStorage
       localStorage.setItem('claude-settings', JSON.stringify(claudeSettings));
       localStorage.setItem('cursor-tools-settings', JSON.stringify(cursorSettings));
-      
+
       setSaveStatus('success');
-      
+
       setTimeout(() => {
         onClose();
       }, 1000);
@@ -490,9 +490,9 @@ function Settings({ isOpen, onClose, projects = [] }) {
 
   const handleMcpSubmit = async (e) => {
     e.preventDefault();
-    
+
     setMcpLoading(true);
-    
+
     try {
       if (mcpFormData.importMode === 'json') {
         // Use JSON import endpoint
@@ -510,7 +510,7 @@ function Settings({ isOpen, onClose, projects = [] }) {
             projectPath: mcpFormData.projectPath
           })
         });
-        
+
         if (response.ok) {
           const result = await response.json();
           if (result.success) {
@@ -556,13 +556,13 @@ function Settings({ isOpen, onClose, projects = [] }) {
       const result = await testMcpServer(serverId, scope);
       setMcpTestResults({ ...mcpTestResults, [serverId]: result });
     } catch (error) {
-      setMcpTestResults({ 
-        ...mcpTestResults, 
-        [serverId]: { 
-          success: false, 
+      setMcpTestResults({
+        ...mcpTestResults,
+        [serverId]: {
+          success: false,
           message: error.message,
           details: []
-        } 
+        }
       });
     }
   };
@@ -573,14 +573,14 @@ function Settings({ isOpen, onClose, projects = [] }) {
       const result = await discoverMcpTools(serverId, scope);
       setMcpServerTools({ ...mcpServerTools, [serverId]: result });
     } catch (error) {
-      setMcpServerTools({ 
-        ...mcpServerTools, 
-        [serverId]: { 
-          success: false, 
-          tools: [], 
-          resources: [], 
-          prompts: [] 
-        } 
+      setMcpServerTools({
+        ...mcpServerTools,
+        [serverId]: {
+          success: false,
+          tools: [],
+          resources: [],
+          prompts: []
+        }
       });
     } finally {
       setMcpToolsLoading({ ...mcpToolsLoading, [serverId]: false });
@@ -653,11 +653,11 @@ function Settings({ isOpen, onClose, projects = [] }) {
               >
                 Appearance
               </button>
-              </div>
+            </div>
           </div>
 
           <div className="p-4 md:p-6 space-y-6 md:space-y-8 pb-safe-area-inset-bottom">
-            
+
             {/* Appearance Tab */}
             {activeTab === 'appearance' && (
               <div className="space-y-6 md:space-y-8">
@@ -667,1040 +667,1040 @@ function Settings({ isOpen, onClose, projects = [] }) {
             {/* Tools Tab */}
             {activeTab === 'tools' && (
               <div className="space-y-6 md:space-y-8">
-            
-            {/* Provider Tabs */}
-            <div className="border-b border-gray-300 dark:border-gray-600">
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setToolsProvider('claude')}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    toolsProvider === 'claude'
-                      ? 'border-blue-600 text-blue-600 dark:text-blue-400'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <ClaudeLogo className="w-4 h-4" />
-                    <span>Claude</span>
+
+                {/* Provider Tabs */}
+                <div className="border-b border-gray-300 dark:border-gray-600">
+                  <div className="flex gap-4">
+                    <button
+                      onClick={() => setToolsProvider('claude')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        toolsProvider === 'claude'
+                          ? 'border-blue-600 text-blue-600 dark:text-blue-400'
+                          : 'border-transparent text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <ClaudeLogo className="w-4 h-4" />
+                        <span>Claude</span>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => setToolsProvider('cursor')}
+                      className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+                        toolsProvider === 'cursor'
+                          ? 'border-purple-600 text-purple-600 dark:text-purple-400'
+                          : 'border-transparent text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <CursorLogo className="w-4 h-4" />
+                        <span>Cursor</span>
+                      </div>
+                    </button>
                   </div>
-                </button>
-                <button
-                  onClick={() => setToolsProvider('cursor')}
-                  className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
-                    toolsProvider === 'cursor'
-                      ? 'border-purple-600 text-purple-600 dark:text-purple-400'
-                      : 'border-transparent text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <CursorLogo className="w-4 h-4" />
-                    <span>Cursor</span>
-                  </div>
-                </button>
-              </div>
-            </div>
-            
-            {/* Claude Content */}
-            {toolsProvider === 'claude' && (
-              <div className="space-y-6 md:space-y-8">
-            
-            {/* Skip Permissions */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-orange-500" />
-                <h3 className="text-lg font-medium text-foreground">
+                </div>
+
+                {/* Claude Content */}
+                {toolsProvider === 'claude' && (
+                  <div className="space-y-6 md:space-y-8">
+
+                    {/* Skip Permissions */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5 text-orange-500" />
+                        <h3 className="text-lg font-medium text-foreground">
                   Permission Settings
-                </h3>
-              </div>
-              <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-                <label className="flex items-center gap-3">
-                  <input
-                    type="checkbox"
-                    checked={skipPermissions}
-                    onChange={(e) => setSkipPermissions(e.target.checked)}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                  />
-                  <div>
-                    <div className="font-medium text-orange-900 dark:text-orange-100">
+                        </h3>
+                      </div>
+                      <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+                        <label className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={skipPermissions}
+                            onChange={(e) => setSkipPermissions(e.target.checked)}
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <div>
+                            <div className="font-medium text-orange-900 dark:text-orange-100">
                       Skip permission prompts (use with caution)
-                    </div>
-                    <div className="text-sm text-orange-700 dark:text-orange-300">
+                            </div>
+                            <div className="text-sm text-orange-700 dark:text-orange-300">
                       Equivalent to --dangerously-skip-permissions flag
-                    </div>
-                  </div>
-                </label>
-              </div>
-            </div>
-
-            {/* Claude Login */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <LogIn className="w-5 h-5 text-blue-500" />
-                <h3 className="text-lg font-medium text-foreground">
-                  Authentication
-                </h3>
-              </div>
-              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="font-medium text-blue-900 dark:text-blue-100">
-                      Claude CLI Login
-                    </div>
-                    <div className="text-sm text-blue-700 dark:text-blue-300">
-                      Sign in to your Claude account to enable AI features
-                    </div>
-                  </div>
-                  <Button
-                    onClick={handleClaudeLogin}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="sm"
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* Allowed Tools */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Shield className="w-5 h-5 text-green-500" />
-                <h3 className="text-lg font-medium text-foreground">
-                  Allowed Tools
-                </h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Tools that are automatically allowed without prompting for permission
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  value={newAllowedTool}
-                  onChange={(e) => setNewAllowedTool(e.target.value)}
-                  placeholder='e.g., "Bash(git log:*)" or "Write"'
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      addAllowedTool(newAllowedTool);
-                    }
-                  }}
-                  className="flex-1 h-10 touch-manipulation"
-                  style={{ fontSize: '16px' }}
-                />
-                <Button
-                  onClick={() => addAllowedTool(newAllowedTool)}
-                  disabled={!newAllowedTool}
-                  size="sm"
-                  className="h-10 px-4 touch-manipulation"
-                >
-                  <Plus className="w-4 h-4 mr-2 sm:mr-0" />
-                  <span className="sm:hidden">Add Tool</span>
-                </Button>
-              </div>
-
-              {/* Common tools quick add */}
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                  Quick add common tools:
-                </p>
-                <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-                  {commonTools.map(tool => (
-                    <Button
-                      key={tool}
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addAllowedTool(tool)}
-                      disabled={allowedTools.includes(tool)}
-                      className="text-xs h-8 touch-manipulation truncate"
-                    >
-                      {tool}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                {allowedTools.map(tool => (
-                  <div key={tool} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                    <span className="font-mono text-sm text-green-800 dark:text-green-200">
-                      {tool}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeAllowedTool(tool)}
-                      className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-                {allowedTools.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    No allowed tools configured
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Disallowed Tools */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <AlertTriangle className="w-5 h-5 text-red-500" />
-                <h3 className="text-lg font-medium text-foreground">
-                  Disallowed Tools
-                </h3>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Tools that are automatically blocked without prompting for permission
-              </p>
-              
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Input
-                  value={newDisallowedTool}
-                  onChange={(e) => setNewDisallowedTool(e.target.value)}
-                  placeholder='e.g., "Bash(rm:*)" or "Write"'
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      addDisallowedTool(newDisallowedTool);
-                    }
-                  }}
-                  className="flex-1 h-10 touch-manipulation"
-                  style={{ fontSize: '16px' }}
-                />
-                <Button
-                  onClick={() => addDisallowedTool(newDisallowedTool)}
-                  disabled={!newDisallowedTool}
-                  size="sm"
-                  className="h-10 px-4 touch-manipulation"
-                >
-                  <Plus className="w-4 h-4 mr-2 sm:mr-0" />
-                  <span className="sm:hidden">Add Tool</span>
-                </Button>
-              </div>
-
-              <div className="space-y-2">
-                {disallowedTools.map(tool => (
-                  <div key={tool} className="flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                    <span className="font-mono text-sm text-red-800 dark:text-red-200">
-                      {tool}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeDisallowedTool(tool)}
-                      className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))}
-                {disallowedTools.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    No disallowed tools configured
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Help Section */}
-            <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-              <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
-                Tool Pattern Examples:
-              </h4>
-              <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
-                <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(git log:*)"</code> - Allow all git log commands</li>
-                <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(git diff:*)"</code> - Allow all git diff commands</li>
-                <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Write"</code> - Allow all Write tool usage</li>
-                <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Read"</code> - Allow all Read tool usage</li>
-                <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(rm:*)"</code> - Block all rm commands (dangerous)</li>
-              </ul>
-            </div>
-
-            {/* MCP Server Management */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-3">
-                <Server className="w-5 h-5 text-purple-500" />
-                <h3 className="text-lg font-medium text-foreground">
-                  MCP Servers
-                </h3>
-              </div>
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">
-                  Model Context Protocol servers provide additional tools and data sources to Claude
-                </p>
-              </div>
-              
-              <div className="flex justify-between items-center">
-                <Button
-                  onClick={() => openMcpForm()}
-                  className="bg-purple-600 hover:bg-purple-700 text-white"
-                  size="sm"
-                >
-                  <Plus className="w-4 h-4 mr-2" />
-                  Add MCP Server
-                </Button>
-              </div>
-
-              {/* MCP Servers List */}
-              <div className="space-y-2">
-                {mcpServers.map(server => (
-                  <div key={server.id} className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          {getTransportIcon(server.type)}
-                          <span className="font-medium text-foreground">{server.name}</span>
-                          <Badge variant="outline" className="text-xs">
-                            {server.type}
-                          </Badge>
-                          <Badge variant="outline" className="text-xs">
-                            {server.scope === 'local' ? '📁 local' : server.scope === 'user' ? '👤 user' : server.scope}
-                          </Badge>
-                          {server.projectPath && (
-                            <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-900/20" title={server.projectPath}>
-                              {server.projectPath.split('/').pop()}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <div className="text-sm text-muted-foreground space-y-1">
-                          {server.type === 'stdio' && server.config.command && (
-                            <div>Command: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{server.config.command}</code></div>
-                          )}
-                          {(server.type === 'sse' || server.type === 'http') && server.config.url && (
-                            <div>URL: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{server.config.url}</code></div>
-                          )}
-                          {server.config.args && server.config.args.length > 0 && (
-                            <div>Args: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{server.config.args.join(' ')}</code></div>
-                          )}
-                          {server.config.env && Object.keys(server.config.env).length > 0 && (
-                            <div>Environment: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{Object.entries(server.config.env).map(([k, v]) => `${k}=${v}`).join(', ')}</code></div>
-                          )}
-                          {server.raw && (
-                            <details className="mt-2">
-                              <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">View full config</summary>
-                              <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
-                                {JSON.stringify(server.raw, null, 2)}
-                              </pre>
-                            </details>
-                          )}
-                        </div>
-
-                        {/* Test Results */}
-                        {mcpTestResults[server.id] && (
-                          <div className={`mt-2 p-2 rounded text-xs ${
-                            mcpTestResults[server.id].success 
-                              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200' 
-                              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200'
-                          }`}>
-                            <div className="font-medium">{mcpTestResults[server.id].message}</div>
-                            {mcpTestResults[server.id].details && mcpTestResults[server.id].details.length > 0 && (
-                              <ul className="mt-1 space-y-0.5">
-                                {mcpTestResults[server.id].details.map((detail, i) => (
-                                  <li key={i}>• {detail}</li>
-                                ))}
-                              </ul>
-                            )}
+                            </div>
                           </div>
-                        )}
-
-                        {/* Tools Discovery Results */}
-                        {mcpServerTools[server.id] && (
-                          <div className="mt-2 p-2 rounded text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
-                            <div className="font-medium mb-2">Available Tools & Resources</div>
-                            
-                            {mcpServerTools[server.id].tools && mcpServerTools[server.id].tools.length > 0 && (
-                              <div className="mb-2">
-                                <div className="font-medium text-xs mb-1">Tools ({mcpServerTools[server.id].tools.length}):</div>
-                                <ul className="space-y-0.5">
-                                  {mcpServerTools[server.id].tools.map((tool, i) => (
-                                    <li key={i} className="flex items-start gap-1">
-                                      <span className="text-blue-400 mt-0.5">•</span>
-                                      <div>
-                                        <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{tool.name}</code>
-                                        {tool.description && tool.description !== 'No description provided' && (
-                                          <span className="ml-1 text-xs opacity-75">- {tool.description}</span>
-                                        )}
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {mcpServerTools[server.id].resources && mcpServerTools[server.id].resources.length > 0 && (
-                              <div className="mb-2">
-                                <div className="font-medium text-xs mb-1">Resources ({mcpServerTools[server.id].resources.length}):</div>
-                                <ul className="space-y-0.5">
-                                  {mcpServerTools[server.id].resources.map((resource, i) => (
-                                    <li key={i} className="flex items-start gap-1">
-                                      <span className="text-blue-400 mt-0.5">•</span>
-                                      <div>
-                                        <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{resource.name}</code>
-                                        {resource.description && resource.description !== 'No description provided' && (
-                                          <span className="ml-1 text-xs opacity-75">- {resource.description}</span>
-                                        )}
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {mcpServerTools[server.id].prompts && mcpServerTools[server.id].prompts.length > 0 && (
-                              <div>
-                                <div className="font-medium text-xs mb-1">Prompts ({mcpServerTools[server.id].prompts.length}):</div>
-                                <ul className="space-y-0.5">
-                                  {mcpServerTools[server.id].prompts.map((prompt, i) => (
-                                    <li key={i} className="flex items-start gap-1">
-                                      <span className="text-blue-400 mt-0.5">•</span>
-                                      <div>
-                                        <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{prompt.name}</code>
-                                        {prompt.description && prompt.description !== 'No description provided' && (
-                                          <span className="ml-1 text-xs opacity-75">- {prompt.description}</span>
-                                        )}
-                                      </div>
-                                    </li>
-                                  ))}
-                                </ul>
-                              </div>
-                            )}
-
-                            {(!mcpServerTools[server.id].tools || mcpServerTools[server.id].tools.length === 0) &&
-                             (!mcpServerTools[server.id].resources || mcpServerTools[server.id].resources.length === 0) &&
-                             (!mcpServerTools[server.id].prompts || mcpServerTools[server.id].prompts.length === 0) && (
-                              <div className="text-xs opacity-75">No tools, resources, or prompts discovered</div>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="flex items-center gap-2 ml-4">
-                        <Button
-                          onClick={() => openMcpForm(server)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
-                          title="Edit server"
-                        >
-                          <Edit3 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          onClick={() => handleMcpDelete(server.id, server.scope)}
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                          title="Delete server"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-                {mcpServers.length === 0 && (
-                  <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                    No MCP servers configured
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* MCP Server Form Modal */}
-            {showMcpForm && (
-              <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[110] p-4">
-                <div className="bg-background border border-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                  <div className="flex items-center justify-between p-4 border-b border-border">
-                    <h3 className="text-lg font-medium text-foreground">
-                      {editingMcpServer ? 'Edit MCP Server' : 'Add MCP Server'}
-                    </h3>
-                    <Button variant="ghost" size="sm" onClick={resetMcpForm}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  <form onSubmit={handleMcpSubmit} className="p-4 space-y-4">
-
-                    {!editingMcpServer && (
-                    <div className="flex gap-2 mb-4">
-                      <button
-                        type="button"
-                        onClick={() => setMcpFormData(prev => ({...prev, importMode: 'form'}))}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                          mcpFormData.importMode === 'form'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        Form Input
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setMcpFormData(prev => ({...prev, importMode: 'json'}))}
-                        className={`px-4 py-2 rounded-lg font-medium transition-colors ${
-                          mcpFormData.importMode === 'json'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                        }`}
-                      >
-                        JSON Import
-                      </button>
-                    </div>
-                    )}
-
-                    {/* Show current scope when editing */}
-                    {mcpFormData.importMode === 'form' && editingMcpServer && (
-                      <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Scope
                         </label>
-                        <div className="flex items-center gap-2">
-                          {mcpFormData.scope === 'user' ? <Globe className="w-4 h-4" /> : <FolderOpen className="w-4 h-4" />}
-                          <span className="text-sm">
-                            {mcpFormData.scope === 'user' ? 'User (Global)' : 'Project (Local)'}
-                          </span>
-                          {mcpFormData.scope === 'local' && mcpFormData.projectPath && (
-                            <span className="text-xs text-muted-foreground">
-                              - {mcpFormData.projectPath}
-                            </span>
-                          )}
+                      </div>
+                    </div>
+
+                    {/* Claude Login */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <LogIn className="w-5 h-5 text-blue-500" />
+                        <h3 className="text-lg font-medium text-foreground">
+                  Authentication
+                        </h3>
+                      </div>
+                      <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-blue-900 dark:text-blue-100">
+                      Claude CLI Login
+                            </div>
+                            <div className="text-sm text-blue-700 dark:text-blue-300">
+                      Sign in to your Claude account to enable AI features
+                            </div>
+                          </div>
+                          <Button
+                            onClick={handleClaudeLogin}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                            size="sm"
+                          >
+                            <LogIn className="w-4 h-4 mr-2" />
+                    Login
+                          </Button>
                         </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Scope cannot be changed when editing an existing server
+                      </div>
+                    </div>
+
+                    {/* Allowed Tools */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Shield className="w-5 h-5 text-green-500" />
+                        <h3 className="text-lg font-medium text-foreground">
+                  Allowed Tools
+                        </h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                Tools that are automatically allowed without prompting for permission
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          value={newAllowedTool}
+                          onChange={(e) => setNewAllowedTool(e.target.value)}
+                          placeholder='e.g., "Bash(git log:*)" or "Write"'
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              addAllowedTool(newAllowedTool);
+                            }
+                          }}
+                          className="flex-1 h-10 touch-manipulation"
+                          style={{ fontSize: '16px' }}
+                        />
+                        <Button
+                          onClick={() => addAllowedTool(newAllowedTool)}
+                          disabled={!newAllowedTool}
+                          size="sm"
+                          className="h-10 px-4 touch-manipulation"
+                        >
+                          <Plus className="w-4 h-4 mr-2 sm:mr-0" />
+                          <span className="sm:hidden">Add Tool</span>
+                        </Button>
+                      </div>
+
+                      {/* Common tools quick add */}
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Quick add common tools:
+                        </p>
+                        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+                          {commonTools.map(tool => (
+                            <Button
+                              key={tool}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => addAllowedTool(tool)}
+                              disabled={allowedTools.includes(tool)}
+                              className="text-xs h-8 touch-manipulation truncate"
+                            >
+                              {tool}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {allowedTools.map(tool => (
+                          <div key={tool} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                            <span className="font-mono text-sm text-green-800 dark:text-green-200">
+                              {tool}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeAllowedTool(tool)}
+                              className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {allowedTools.length === 0 && (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No allowed tools configured
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Disallowed Tools */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5 text-red-500" />
+                        <h3 className="text-lg font-medium text-foreground">
+                  Disallowed Tools
+                        </h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                Tools that are automatically blocked without prompting for permission
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          value={newDisallowedTool}
+                          onChange={(e) => setNewDisallowedTool(e.target.value)}
+                          placeholder='e.g., "Bash(rm:*)" or "Write"'
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              addDisallowedTool(newDisallowedTool);
+                            }
+                          }}
+                          className="flex-1 h-10 touch-manipulation"
+                          style={{ fontSize: '16px' }}
+                        />
+                        <Button
+                          onClick={() => addDisallowedTool(newDisallowedTool)}
+                          disabled={!newDisallowedTool}
+                          size="sm"
+                          className="h-10 px-4 touch-manipulation"
+                        >
+                          <Plus className="w-4 h-4 mr-2 sm:mr-0" />
+                          <span className="sm:hidden">Add Tool</span>
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {disallowedTools.map(tool => (
+                          <div key={tool} className="flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                            <span className="font-mono text-sm text-red-800 dark:text-red-200">
+                              {tool}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeDisallowedTool(tool)}
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {disallowedTools.length === 0 && (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No disallowed tools configured
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Help Section */}
+                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-900 dark:text-blue-100 mb-2">
+                Tool Pattern Examples:
+                      </h4>
+                      <ul className="text-sm text-blue-800 dark:text-blue-200 space-y-1">
+                        <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(git log:*)"</code> - Allow all git log commands</li>
+                        <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(git diff:*)"</code> - Allow all git diff commands</li>
+                        <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Write"</code> - Allow all Write tool usage</li>
+                        <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Read"</code> - Allow all Read tool usage</li>
+                        <li><code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">"Bash(rm:*)"</code> - Block all rm commands (dangerous)</li>
+                      </ul>
+                    </div>
+
+                    {/* MCP Server Management */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Server className="w-5 h-5 text-purple-500" />
+                        <h3 className="text-lg font-medium text-foreground">
+                  MCP Servers
+                        </h3>
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-sm text-muted-foreground">
+                  Model Context Protocol servers provide additional tools and data sources to Claude
                         </p>
                       </div>
-                    )}
 
-                    {/* Scope Selection - Moved to top, disabled when editing */}
-                    {mcpFormData.importMode === 'form' && !editingMcpServer && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-foreground mb-2">
-                            Scope *
-                          </label>
-                          <div className="flex gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setMcpFormData(prev => ({...prev, scope: 'user', projectPath: ''}))}
-                              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                                mcpFormData.scope === 'user'
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                              }`}
-                            >
-                              <div className="flex items-center justify-center gap-2">
-                                <Globe className="w-4 h-4" />
-                                <span>User (Global)</span>
+                      <div className="flex justify-between items-center">
+                        <Button
+                          onClick={() => openMcpForm()}
+                          className="bg-purple-600 hover:bg-purple-700 text-white"
+                          size="sm"
+                        >
+                          <Plus className="w-4 h-4 mr-2" />
+                  Add MCP Server
+                        </Button>
+                      </div>
+
+                      {/* MCP Servers List */}
+                      <div className="space-y-2">
+                        {mcpServers.map(server => (
+                          <div key={server.id} className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                            <div className="flex items-start justify-between">
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-2">
+                                  {getTransportIcon(server.type)}
+                                  <span className="font-medium text-foreground">{server.name}</span>
+                                  <Badge variant="outline" className="text-xs">
+                                    {server.type}
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs">
+                                    {server.scope === 'local' ? '📁 local' : server.scope === 'user' ? '👤 user' : server.scope}
+                                  </Badge>
+                                  {server.projectPath && (
+                                    <Badge variant="outline" className="text-xs bg-purple-50 dark:bg-purple-900/20" title={server.projectPath}>
+                                      {server.projectPath.split('/').pop()}
+                                    </Badge>
+                                  )}
+                                </div>
+
+                                <div className="text-sm text-muted-foreground space-y-1">
+                                  {server.type === 'stdio' && server.config.command && (
+                                    <div>Command: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{server.config.command}</code></div>
+                                  )}
+                                  {(server.type === 'sse' || server.type === 'http') && server.config.url && (
+                                    <div>URL: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{server.config.url}</code></div>
+                                  )}
+                                  {server.config.args && server.config.args.length > 0 && (
+                                    <div>Args: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{server.config.args.join(' ')}</code></div>
+                                  )}
+                                  {server.config.env && Object.keys(server.config.env).length > 0 && (
+                                    <div>Environment: <code className="bg-gray-100 dark:bg-gray-800 px-1 rounded text-xs">{Object.entries(server.config.env).map(([k, v]) => `${k}=${v}`).join(', ')}</code></div>
+                                  )}
+                                  {server.raw && (
+                                    <details className="mt-2">
+                                      <summary className="cursor-pointer text-xs text-muted-foreground hover:text-foreground">View full config</summary>
+                                      <pre className="mt-1 text-xs bg-gray-100 dark:bg-gray-800 p-2 rounded overflow-x-auto">
+                                        {JSON.stringify(server.raw, null, 2)}
+                                      </pre>
+                                    </details>
+                                  )}
+                                </div>
+
+                                {/* Test Results */}
+                                {mcpTestResults[server.id] && (
+                                  <div className={`mt-2 p-2 rounded text-xs ${
+                                    mcpTestResults[server.id].success
+                                      ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200'
+                                      : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200'
+                                  }`}>
+                                    <div className="font-medium">{mcpTestResults[server.id].message}</div>
+                                    {mcpTestResults[server.id].details && mcpTestResults[server.id].details.length > 0 && (
+                                      <ul className="mt-1 space-y-0.5">
+                                        {mcpTestResults[server.id].details.map((detail, i) => (
+                                          <li key={i}>• {detail}</li>
+                                        ))}
+                                      </ul>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* Tools Discovery Results */}
+                                {mcpServerTools[server.id] && (
+                                  <div className="mt-2 p-2 rounded text-xs bg-blue-50 dark:bg-blue-900/20 text-blue-800 dark:text-blue-200 border border-blue-200 dark:border-blue-800">
+                                    <div className="font-medium mb-2">Available Tools & Resources</div>
+
+                                    {mcpServerTools[server.id].tools && mcpServerTools[server.id].tools.length > 0 && (
+                                      <div className="mb-2">
+                                        <div className="font-medium text-xs mb-1">Tools ({mcpServerTools[server.id].tools.length}):</div>
+                                        <ul className="space-y-0.5">
+                                          {mcpServerTools[server.id].tools.map((tool, i) => (
+                                            <li key={i} className="flex items-start gap-1">
+                                              <span className="text-blue-400 mt-0.5">•</span>
+                                              <div>
+                                                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{tool.name}</code>
+                                                {tool.description && tool.description !== 'No description provided' && (
+                                                  <span className="ml-1 text-xs opacity-75">- {tool.description}</span>
+                                                )}
+                                              </div>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {mcpServerTools[server.id].resources && mcpServerTools[server.id].resources.length > 0 && (
+                                      <div className="mb-2">
+                                        <div className="font-medium text-xs mb-1">Resources ({mcpServerTools[server.id].resources.length}):</div>
+                                        <ul className="space-y-0.5">
+                                          {mcpServerTools[server.id].resources.map((resource, i) => (
+                                            <li key={i} className="flex items-start gap-1">
+                                              <span className="text-blue-400 mt-0.5">•</span>
+                                              <div>
+                                                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{resource.name}</code>
+                                                {resource.description && resource.description !== 'No description provided' && (
+                                                  <span className="ml-1 text-xs opacity-75">- {resource.description}</span>
+                                                )}
+                                              </div>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {mcpServerTools[server.id].prompts && mcpServerTools[server.id].prompts.length > 0 && (
+                                      <div>
+                                        <div className="font-medium text-xs mb-1">Prompts ({mcpServerTools[server.id].prompts.length}):</div>
+                                        <ul className="space-y-0.5">
+                                          {mcpServerTools[server.id].prompts.map((prompt, i) => (
+                                            <li key={i} className="flex items-start gap-1">
+                                              <span className="text-blue-400 mt-0.5">•</span>
+                                              <div>
+                                                <code className="bg-blue-100 dark:bg-blue-800 px-1 rounded">{prompt.name}</code>
+                                                {prompt.description && prompt.description !== 'No description provided' && (
+                                                  <span className="ml-1 text-xs opacity-75">- {prompt.description}</span>
+                                                )}
+                                              </div>
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+
+                                    {(!mcpServerTools[server.id].tools || mcpServerTools[server.id].tools.length === 0) &&
+                             (!mcpServerTools[server.id].resources || mcpServerTools[server.id].resources.length === 0) &&
+                             (!mcpServerTools[server.id].prompts || mcpServerTools[server.id].prompts.length === 0) && (
+                                      <div className="text-xs opacity-75">No tools, resources, or prompts discovered</div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setMcpFormData(prev => ({...prev, scope: 'local'}))}
-                              className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
-                                mcpFormData.scope === 'local'
-                                  ? 'bg-blue-600 text-white'
-                                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
-                              }`}
-                            >
-                              <div className="flex items-center justify-center gap-2">
-                                <FolderOpen className="w-4 h-4" />
-                                <span>Project (Local)</span>
+
+                              <div className="flex items-center gap-2 ml-4">
+                                <Button
+                                  onClick={() => openMcpForm(server)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-gray-600 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                                  title="Edit server"
+                                >
+                                  <Edit3 className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  onClick={() => handleMcpDelete(server.id, server.scope)}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                                  title="Delete server"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
                               </div>
-                            </button>
+                            </div>
                           </div>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {mcpFormData.scope === 'user' 
-                              ? 'User scope: Available across all projects on your machine'
-                              : 'Local scope: Only available in the selected project'
-                            }
-                          </p>
-                        </div>
-
-                        {/* Project Selection for Local Scope */}
-                        {mcpFormData.scope === 'local' && !editingMcpServer && (
-                          <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">
-                              Project *
-                            </label>
-                            <select
-                              value={mcpFormData.projectPath}
-                              onChange={(e) => setMcpFormData(prev => ({...prev, projectPath: e.target.value}))}
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                              required={mcpFormData.scope === 'local'}
-                            >
-                              <option value="">Select a project...</option>
-                              {projects.map(project => (
-                                <option key={project.name} value={project.path || project.fullPath}>
-                                  {project.displayName || project.name}
-                                </option>
-                              ))}
-                            </select>
-                            {mcpFormData.projectPath && (
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Path: {mcpFormData.projectPath}
-                              </p>
-                            )}
+                        ))}
+                        {mcpServers.length === 0 && (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                    No MCP servers configured
                           </div>
                         )}
                       </div>
-                    )}
+                    </div>
 
-                    {/* Basic Info */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className={mcpFormData.importMode === 'json' ? 'md:col-span-2' : ''}>
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                    {/* MCP Server Form Modal */}
+                    {showMcpForm && (
+                      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[110] p-4">
+                        <div className="bg-background border border-border rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                          <div className="flex items-center justify-between p-4 border-b border-border">
+                            <h3 className="text-lg font-medium text-foreground">
+                              {editingMcpServer ? 'Edit MCP Server' : 'Add MCP Server'}
+                            </h3>
+                            <Button variant="ghost" size="sm" onClick={resetMcpForm}>
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+
+                          <form onSubmit={handleMcpSubmit} className="p-4 space-y-4">
+
+                            {!editingMcpServer && (
+                              <div className="flex gap-2 mb-4">
+                                <button
+                                  type="button"
+                                  onClick={() => setMcpFormData(prev => ({...prev, importMode: 'form'}))}
+                                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    mcpFormData.importMode === 'form'
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                  }`}
+                                >
+                        Form Input
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setMcpFormData(prev => ({...prev, importMode: 'json'}))}
+                                  className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                                    mcpFormData.importMode === 'json'
+                                      ? 'bg-blue-600 text-white'
+                                      : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                  }`}
+                                >
+                        JSON Import
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Show current scope when editing */}
+                            {mcpFormData.importMode === 'form' && editingMcpServer && (
+                              <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3">
+                                <label className="block text-sm font-medium text-foreground mb-2">
+                          Scope
+                                </label>
+                                <div className="flex items-center gap-2">
+                                  {mcpFormData.scope === 'user' ? <Globe className="w-4 h-4" /> : <FolderOpen className="w-4 h-4" />}
+                                  <span className="text-sm">
+                                    {mcpFormData.scope === 'user' ? 'User (Global)' : 'Project (Local)'}
+                                  </span>
+                                  {mcpFormData.scope === 'local' && mcpFormData.projectPath && (
+                                    <span className="text-xs text-muted-foreground">
+                              - {mcpFormData.projectPath}
+                                    </span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-2">
+                          Scope cannot be changed when editing an existing server
+                                </p>
+                              </div>
+                            )}
+
+                            {/* Scope Selection - Moved to top, disabled when editing */}
+                            {mcpFormData.importMode === 'form' && !editingMcpServer && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-foreground mb-2">
+                            Scope *
+                                  </label>
+                                  <div className="flex gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setMcpFormData(prev => ({...prev, scope: 'user', projectPath: ''}))}
+                                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                                        mcpFormData.scope === 'user'
+                                          ? 'bg-blue-600 text-white'
+                                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-center gap-2">
+                                        <Globe className="w-4 h-4" />
+                                        <span>User (Global)</span>
+                                      </div>
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setMcpFormData(prev => ({...prev, scope: 'local'}))}
+                                      className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                                        mcpFormData.scope === 'local'
+                                          ? 'bg-blue-600 text-white'
+                                          : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
+                                      }`}
+                                    >
+                                      <div className="flex items-center justify-center gap-2">
+                                        <FolderOpen className="w-4 h-4" />
+                                        <span>Project (Local)</span>
+                                      </div>
+                                    </button>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground mt-2">
+                                    {mcpFormData.scope === 'user'
+                                      ? 'User scope: Available across all projects on your machine'
+                                      : 'Local scope: Only available in the selected project'
+                                    }
+                                  </p>
+                                </div>
+
+                                {/* Project Selection for Local Scope */}
+                                {mcpFormData.scope === 'local' && !editingMcpServer && (
+                                  <div>
+                                    <label className="block text-sm font-medium text-foreground mb-2">
+                              Project *
+                                    </label>
+                                    <select
+                                      value={mcpFormData.projectPath}
+                                      onChange={(e) => setMcpFormData(prev => ({...prev, projectPath: e.target.value}))}
+                                      className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                      required={mcpFormData.scope === 'local'}
+                                    >
+                                      <option value="">Select a project...</option>
+                                      {projects.map(project => (
+                                        <option key={project.name} value={project.path || project.fullPath}>
+                                          {project.displayName || project.name}
+                                        </option>
+                                      ))}
+                                    </select>
+                                    {mcpFormData.projectPath && (
+                                      <p className="text-xs text-muted-foreground mt-1">
+                                Path: {mcpFormData.projectPath}
+                                      </p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Basic Info */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className={mcpFormData.importMode === 'json' ? 'md:col-span-2' : ''}>
+                                <label className="block text-sm font-medium text-foreground mb-2">
                           Server Name *
-                        </label>
-                        <Input
-                          value={mcpFormData.name}
-                          onChange={(e) => {
-                            setMcpFormData(prev => ({...prev, name: e.target.value}));
-                          }}
-                          placeholder="my-server"
-                          required
-                        />
-                      </div>
-                      
-                      {mcpFormData.importMode === 'form' && (
-                        <div>
-                          <label className="block text-sm font-medium text-foreground mb-2">
+                                </label>
+                                <Input
+                                  value={mcpFormData.name}
+                                  onChange={(e) => {
+                                    setMcpFormData(prev => ({...prev, name: e.target.value}));
+                                  }}
+                                  placeholder="my-server"
+                                  required
+                                />
+                              </div>
+
+                              {mcpFormData.importMode === 'form' && (
+                                <div>
+                                  <label className="block text-sm font-medium text-foreground mb-2">
                             Transport Type *
-                          </label>
-                          <select
-                            value={mcpFormData.type}
-                            onChange={(e) => {
-                              setMcpFormData(prev => ({...prev, type: e.target.value}));
-                            }}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                          >
-                            <option value="stdio">stdio</option>
-                            <option value="sse">SSE</option>
-                            <option value="http">HTTP</option>
-                          </select>
-                        </div>
-                      )}
-                    </div>
+                                  </label>
+                                  <select
+                                    value={mcpFormData.type}
+                                    onChange={(e) => {
+                                      setMcpFormData(prev => ({...prev, type: e.target.value}));
+                                    }}
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                  >
+                                    <option value="stdio">stdio</option>
+                                    <option value="sse">SSE</option>
+                                    <option value="http">HTTP</option>
+                                  </select>
+                                </div>
+                              )}
+                            </div>
 
 
-                    {/* Show raw configuration details when editing */}
-                    {editingMcpServer && mcpFormData.raw && mcpFormData.importMode === 'form' && (
-                      <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
-                        <h4 className="text-sm font-medium text-foreground mb-2">
+                            {/* Show raw configuration details when editing */}
+                            {editingMcpServer && mcpFormData.raw && mcpFormData.importMode === 'form' && (
+                              <div className="bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+                                <h4 className="text-sm font-medium text-foreground mb-2">
                           Configuration Details (from {editingMcpServer.scope === 'global' ? '~/.claude.json' : 'project config'})
-                        </h4>
-                        <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto">
-                          {JSON.stringify(mcpFormData.raw, null, 2)}
-                        </pre>
-                      </div>
-                    )}
+                                </h4>
+                                <pre className="text-xs bg-gray-100 dark:bg-gray-800 p-3 rounded overflow-x-auto">
+                                  {JSON.stringify(mcpFormData.raw, null, 2)}
+                                </pre>
+                              </div>
+                            )}
 
-                    {/* JSON Import Mode */}
-                    {mcpFormData.importMode === 'json' && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-foreground mb-2">
+                            {/* JSON Import Mode */}
+                            {mcpFormData.importMode === 'json' && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-foreground mb-2">
                             JSON Configuration *
-                          </label>
-                          <textarea
-                            value={mcpFormData.jsonInput}
-                            onChange={(e) => {
-                              setMcpFormData(prev => ({...prev, jsonInput: e.target.value}));
-                              // Validate JSON as user types
-                              try {
-                                if (e.target.value.trim()) {
-                                  const parsed = JSON.parse(e.target.value);
-                                  // Basic validation
-                                  if (!parsed.type) {
-                                    setJsonValidationError('Missing required field: type');
-                                  } else if (parsed.type === 'stdio' && !parsed.command) {
-                                    setJsonValidationError('stdio type requires a command field');
-                                  } else if ((parsed.type === 'http' || parsed.type === 'sse') && !parsed.url) {
-                                    setJsonValidationError(`${parsed.type} type requires a url field`);
-                                  } else {
-                                    setJsonValidationError('');
-                                  }
-                                }
-                              } catch (err) {
-                                if (e.target.value.trim()) {
-                                  setJsonValidationError('Invalid JSON format');
-                                } else {
-                                  setJsonValidationError('');
-                                }
-                              }
-                            }}
-                            className={`w-full px-3 py-2 border ${jsonValidationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm`}
-                            rows="8"
-                            placeholder={'{\n  "type": "stdio",\n  "command": "/path/to/server",\n  "args": ["--api-key", "abc123"],\n  "env": {\n    "CACHE_DIR": "/tmp"\n  }\n}'}
-                            required
-                          />
-                          {jsonValidationError && (
-                            <p className="text-xs text-red-500 mt-1">{jsonValidationError}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground mt-2">
+                                  </label>
+                                  <textarea
+                                    value={mcpFormData.jsonInput}
+                                    onChange={(e) => {
+                                      setMcpFormData(prev => ({...prev, jsonInput: e.target.value}));
+                                      // Validate JSON as user types
+                                      try {
+                                        if (e.target.value.trim()) {
+                                          const parsed = JSON.parse(e.target.value);
+                                          // Basic validation
+                                          if (!parsed.type) {
+                                            setJsonValidationError('Missing required field: type');
+                                          } else if (parsed.type === 'stdio' && !parsed.command) {
+                                            setJsonValidationError('stdio type requires a command field');
+                                          } else if ((parsed.type === 'http' || parsed.type === 'sse') && !parsed.url) {
+                                            setJsonValidationError(`${parsed.type} type requires a url field`);
+                                          } else {
+                                            setJsonValidationError('');
+                                          }
+                                        }
+                                      } catch (err) {
+                                        if (e.target.value.trim()) {
+                                          setJsonValidationError('Invalid JSON format');
+                                        } else {
+                                          setJsonValidationError('');
+                                        }
+                                      }
+                                    }}
+                                    className={`w-full px-3 py-2 border ${jsonValidationError ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'} bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500 font-mono text-sm`}
+                                    rows="8"
+                                    placeholder={'{\n  "type": "stdio",\n  "command": "/path/to/server",\n  "args": ["--api-key", "abc123"],\n  "env": {\n    "CACHE_DIR": "/tmp"\n  }\n}'}
+                                    required
+                                  />
+                                  {jsonValidationError && (
+                                    <p className="text-xs text-red-500 mt-1">{jsonValidationError}</p>
+                                  )}
+                                  <p className="text-xs text-muted-foreground mt-2">
                             Paste your MCP server configuration in JSON format. Example formats:
-                            <br />• stdio: {`{"type":"stdio","command":"npx","args":["@upstash/context7-mcp"]}`}
-                            <br />• http/sse: {`{"type":"http","url":"https://api.example.com/mcp"}`}
-                          </p>
-                        </div>
-                      </div>
-                    )}
+                                    <br />• stdio: {'{"type":"stdio","command":"npx","args":["@upstash/context7-mcp"]}'}
+                                    <br />• http/sse: {'{"type":"http","url":"https://api.example.com/mcp"}'}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
 
-                    {/* Transport-specific Config - Only show in form mode */}
-                    {mcpFormData.importMode === 'form' && mcpFormData.type === 'stdio' && (
-                      <div className="space-y-4">
-                        <div>
-                          <label className="block text-sm font-medium text-foreground mb-2">
+                            {/* Transport-specific Config - Only show in form mode */}
+                            {mcpFormData.importMode === 'form' && mcpFormData.type === 'stdio' && (
+                              <div className="space-y-4">
+                                <div>
+                                  <label className="block text-sm font-medium text-foreground mb-2">
                             Command *
-                          </label>
-                          <Input
-                            value={mcpFormData.config.command}
-                            onChange={(e) => updateMcpConfig('command', e.target.value)}
-                            placeholder="/path/to/mcp-server"
-                            required
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-foreground mb-2">
+                                  </label>
+                                  <Input
+                                    value={mcpFormData.config.command}
+                                    onChange={(e) => updateMcpConfig('command', e.target.value)}
+                                    placeholder="/path/to/mcp-server"
+                                    required
+                                  />
+                                </div>
+
+                                <div>
+                                  <label className="block text-sm font-medium text-foreground mb-2">
                             Arguments (one per line)
-                          </label>
-                          <textarea
-                            value={Array.isArray(mcpFormData.config.args) ? mcpFormData.config.args.join('\n') : ''}
-                            onChange={(e) => updateMcpConfig('args', e.target.value.split('\n').filter(arg => arg.trim()))}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            rows="3"
-                            placeholder="--api-key&#10;abc123"
-                          />
-                        </div>
-                      </div>
-                    )}
+                                  </label>
+                                  <textarea
+                                    value={Array.isArray(mcpFormData.config.args) ? mcpFormData.config.args.join('\n') : ''}
+                                    onChange={(e) => updateMcpConfig('args', e.target.value.split('\n').filter(arg => arg.trim()))}
+                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                    rows="3"
+                                    placeholder="--api-key&#10;abc123"
+                                  />
+                                </div>
+                              </div>
+                            )}
 
-                    {mcpFormData.importMode === 'form' && (mcpFormData.type === 'sse' || mcpFormData.type === 'http') && (
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                            {mcpFormData.importMode === 'form' && (mcpFormData.type === 'sse' || mcpFormData.type === 'http') && (
+                              <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
                           URL *
-                        </label>
-                        <Input
-                          value={mcpFormData.config.url}
-                          onChange={(e) => updateMcpConfig('url', e.target.value)}
-                          placeholder="https://api.example.com/mcp"
-                          type="url"
-                          required
-                        />
-                      </div>
-                    )}
+                                </label>
+                                <Input
+                                  value={mcpFormData.config.url}
+                                  onChange={(e) => updateMcpConfig('url', e.target.value)}
+                                  placeholder="https://api.example.com/mcp"
+                                  type="url"
+                                  required
+                                />
+                              </div>
+                            )}
 
-                    {/* Environment Variables - Only show in form mode */}
-                    {mcpFormData.importMode === 'form' && (
-                      <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                            {/* Environment Variables - Only show in form mode */}
+                            {mcpFormData.importMode === 'form' && (
+                              <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
                         Environment Variables (KEY=value, one per line)
-                      </label>
-                      <textarea
-                        value={Object.entries(mcpFormData.config.env || {}).map(([k, v]) => `${k}=${v}`).join('\n')}
-                        onChange={(e) => {
-                          const env = {};
-                          e.target.value.split('\n').forEach(line => {
-                            const [key, ...valueParts] = line.split('=');
-                            if (key && key.trim()) {
-                              env[key.trim()] = valueParts.join('=').trim();
-                            }
-                          });
-                          updateMcpConfig('env', env);
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                        rows="3"
-                        placeholder="API_KEY=your-key&#10;DEBUG=true"
-                      />
-                    </div>
-                    )}
+                                </label>
+                                <textarea
+                                  value={Object.entries(mcpFormData.config.env || {}).map(([k, v]) => `${k}=${v}`).join('\n')}
+                                  onChange={(e) => {
+                                    const env = {};
+                                    e.target.value.split('\n').forEach(line => {
+                                      const [key, ...valueParts] = line.split('=');
+                                      if (key && key.trim()) {
+                                        env[key.trim()] = valueParts.join('=').trim();
+                                      }
+                                    });
+                                    updateMcpConfig('env', env);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                  rows="3"
+                                  placeholder="API_KEY=your-key&#10;DEBUG=true"
+                                />
+                              </div>
+                            )}
 
-                    {mcpFormData.importMode === 'form' && (mcpFormData.type === 'sse' || mcpFormData.type === 'http') && (
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
+                            {mcpFormData.importMode === 'form' && (mcpFormData.type === 'sse' || mcpFormData.type === 'http') && (
+                              <div>
+                                <label className="block text-sm font-medium text-foreground mb-2">
                           Headers (KEY=value, one per line)
-                        </label>
-                        <textarea
-                          value={Object.entries(mcpFormData.config.headers || {}).map(([k, v]) => `${k}=${v}`).join('\n')}
-                          onChange={(e) => {
-                            const headers = {};
-                            e.target.value.split('\n').forEach(line => {
-                              const [key, ...valueParts] = line.split('=');
-                              if (key && key.trim()) {
-                                headers[key.trim()] = valueParts.join('=').trim();
-                              }
-                            });
-                            updateMcpConfig('headers', headers);
-                          }}
-                          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                          rows="3"
-                          placeholder="Authorization=Bearer token&#10;X-API-Key=your-key"
-                        />
+                                </label>
+                                <textarea
+                                  value={Object.entries(mcpFormData.config.headers || {}).map(([k, v]) => `${k}=${v}`).join('\n')}
+                                  onChange={(e) => {
+                                    const headers = {};
+                                    e.target.value.split('\n').forEach(line => {
+                                      const [key, ...valueParts] = line.split('=');
+                                      if (key && key.trim()) {
+                                        headers[key.trim()] = valueParts.join('=').trim();
+                                      }
+                                    });
+                                    updateMcpConfig('headers', headers);
+                                  }}
+                                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                  rows="3"
+                                  placeholder="Authorization=Bearer token&#10;X-API-Key=your-key"
+                                />
+                              </div>
+                            )}
+
+
+                            <div className="flex justify-end gap-2 pt-4">
+                              <Button type="button" variant="outline" onClick={resetMcpForm}>
+                        Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                disabled={mcpLoading}
+                                className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
+                              >
+                                {mcpLoading ? 'Saving...' : (editingMcpServer ? 'Update Server' : 'Add Server')}
+                              </Button>
+                            </div>
+                          </form>
+                        </div>
                       </div>
                     )}
+                  </div>
+                )}
 
+                {/* Cursor Content */}
+                {toolsProvider === 'cursor' && (
+                  <div className="space-y-6 md:space-y-8">
 
-                    <div className="flex justify-end gap-2 pt-4">
-                      <Button type="button" variant="outline" onClick={resetMcpForm}>
-                        Cancel
-                      </Button>
-                      <Button 
-                        type="submit" 
-                        disabled={mcpLoading} 
-                        className="bg-purple-600 hover:bg-purple-700 disabled:opacity-50"
-                      >
-                        {mcpLoading ? 'Saving...' : (editingMcpServer ? 'Update Server' : 'Add Server')}
-                      </Button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            )}
-              </div>
-            )}
-            
-            {/* Cursor Content */}
-            {toolsProvider === 'cursor' && (
-              <div className="space-y-6 md:space-y-8">
-                
-                {/* Skip Permissions for Cursor */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <AlertTriangle className="w-5 h-5 text-orange-500" />
-                    <h3 className="text-lg font-medium text-foreground">
+                    {/* Skip Permissions for Cursor */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <AlertTriangle className="w-5 h-5 text-orange-500" />
+                        <h3 className="text-lg font-medium text-foreground">
                       Cursor Permission Settings
-                    </h3>
-                  </div>
-                  <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
-                    <label className="flex items-center gap-3">
-                      <input
-                        type="checkbox"
-                        checked={cursorSkipPermissions}
-                        onChange={(e) => setCursorSkipPermissions(e.target.checked)}
-                        className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                      />
-                      <div>
-                        <div className="font-medium text-orange-900 dark:text-orange-100">
+                        </h3>
+                      </div>
+                      <div className="bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg p-4">
+                        <label className="flex items-center gap-3">
+                          <input
+                            type="checkbox"
+                            checked={cursorSkipPermissions}
+                            onChange={(e) => setCursorSkipPermissions(e.target.checked)}
+                            className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
+                          />
+                          <div>
+                            <div className="font-medium text-orange-900 dark:text-orange-100">
                           Skip permission prompts (use with caution)
-                        </div>
-                        <div className="text-sm text-orange-700 dark:text-orange-300">
+                            </div>
+                            <div className="text-sm text-orange-700 dark:text-orange-300">
                           Equivalent to -f flag in Cursor CLI
-                        </div>
+                            </div>
+                          </div>
+                        </label>
                       </div>
-                    </label>
-                  </div>
-                </div>
-
-                {/* Cursor Login */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <LogIn className="w-5 h-5 text-purple-500" />
-                    <h3 className="text-lg font-medium text-foreground">
-                      Authentication
-                    </h3>
-                  </div>
-                  <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-medium text-purple-900 dark:text-purple-100">
-                          Cursor CLI Login
-                        </div>
-                        <div className="text-sm text-purple-700 dark:text-purple-300">
-                          Sign in to your Cursor account to enable AI features
-                        </div>
-                      </div>
-                      <Button
-                        onClick={handleCursorLogin}
-                        className="bg-purple-600 hover:bg-purple-700 text-white"
-                        size="sm"
-                      >
-                        <LogIn className="w-4 h-4 mr-2" />
-                        Login
-                      </Button>
                     </div>
-                  </div>
-                </div>
 
-                {/* Allowed Shell Commands */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-green-500" />
-                    <h3 className="text-lg font-medium text-foreground">
+                    {/* Cursor Login */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <LogIn className="w-5 h-5 text-purple-500" />
+                        <h3 className="text-lg font-medium text-foreground">
+                      Authentication
+                        </h3>
+                      </div>
+                      <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-purple-900 dark:text-purple-100">
+                          Cursor CLI Login
+                            </div>
+                            <div className="text-sm text-purple-700 dark:text-purple-300">
+                          Sign in to your Cursor account to enable AI features
+                            </div>
+                          </div>
+                          <Button
+                            onClick={handleCursorLogin}
+                            className="bg-purple-600 hover:bg-purple-700 text-white"
+                            size="sm"
+                          >
+                            <LogIn className="w-4 h-4 mr-2" />
+                        Login
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Allowed Shell Commands */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Shield className="w-5 h-5 text-green-500" />
+                        <h3 className="text-lg font-medium text-foreground">
                       Allowed Shell Commands
-                    </h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
+                        </h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
                     Shell commands that are automatically allowed without prompting for permission
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Input
-                      value={newCursorCommand}
-                      onChange={(e) => setNewCursorCommand(e.target.value)}
-                      placeholder='e.g., "Shell(ls)" or "Shell(git status)"'
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          if (newCursorCommand && !cursorAllowedCommands.includes(newCursorCommand)) {
-                            setCursorAllowedCommands([...cursorAllowedCommands, newCursorCommand]);
-                            setNewCursorCommand('');
-                          }
-                        }
-                      }}
-                      className="flex-1 h-10 touch-manipulation"
-                      style={{ fontSize: '16px' }}
-                    />
-                    <Button
-                      onClick={() => {
-                        if (newCursorCommand && !cursorAllowedCommands.includes(newCursorCommand)) {
-                          setCursorAllowedCommands([...cursorAllowedCommands, newCursorCommand]);
-                          setNewCursorCommand('');
-                        }
-                      }}
-                      disabled={!newCursorCommand}
-                      size="sm"
-                      className="h-10 px-4 touch-manipulation"
-                    >
-                      <Plus className="w-4 h-4 mr-2 sm:mr-0" />
-                      <span className="sm:hidden">Add Command</span>
-                    </Button>
-                  </div>
+                      </p>
 
-                  {/* Common commands quick add */}
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                      Quick add common commands:
-                    </p>
-                    <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-                      {commonCursorCommands.map(cmd => (
-                        <Button
-                          key={cmd}
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            if (!cursorAllowedCommands.includes(cmd)) {
-                              setCursorAllowedCommands([...cursorAllowedCommands, cmd]);
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          value={newCursorCommand}
+                          onChange={(e) => setNewCursorCommand(e.target.value)}
+                          placeholder='e.g., "Shell(ls)" or "Shell(git status)"'
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              if (newCursorCommand && !cursorAllowedCommands.includes(newCursorCommand)) {
+                                setCursorAllowedCommands([...cursorAllowedCommands, newCursorCommand]);
+                                setNewCursorCommand('');
+                              }
                             }
                           }}
-                          disabled={cursorAllowedCommands.includes(cmd)}
-                          className="text-xs h-8 touch-manipulation truncate"
+                          className="flex-1 h-10 touch-manipulation"
+                          style={{ fontSize: '16px' }}
+                        />
+                        <Button
+                          onClick={() => {
+                            if (newCursorCommand && !cursorAllowedCommands.includes(newCursorCommand)) {
+                              setCursorAllowedCommands([...cursorAllowedCommands, newCursorCommand]);
+                              setNewCursorCommand('');
+                            }
+                          }}
+                          disabled={!newCursorCommand}
+                          size="sm"
+                          className="h-10 px-4 touch-manipulation"
                         >
-                          {cmd}
+                          <Plus className="w-4 h-4 mr-2 sm:mr-0" />
+                          <span className="sm:hidden">Add Command</span>
                         </Button>
-                      ))}
+                      </div>
+
+                      {/* Common commands quick add */}
+                      <div className="space-y-2">
+                        <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                      Quick add common commands:
+                        </p>
+                        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
+                          {commonCursorCommands.map(cmd => (
+                            <Button
+                              key={cmd}
+                              variant="outline"
+                              size="sm"
+                              onClick={() => {
+                                if (!cursorAllowedCommands.includes(cmd)) {
+                                  setCursorAllowedCommands([...cursorAllowedCommands, cmd]);
+                                }
+                              }}
+                              disabled={cursorAllowedCommands.includes(cmd)}
+                              className="text-xs h-8 touch-manipulation truncate"
+                            >
+                              {cmd}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        {cursorAllowedCommands.map(cmd => (
+                          <div key={cmd} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
+                            <span className="font-mono text-sm text-green-800 dark:text-green-200">
+                              {cmd}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setCursorAllowedCommands(cursorAllowedCommands.filter(c => c !== cmd))}
+                              className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {cursorAllowedCommands.length === 0 && (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        No allowed shell commands configured
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Disallowed Shell Commands */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Shield className="w-5 h-5 text-red-500" />
+                        <h3 className="text-lg font-medium text-foreground">
+                      Disallowed Shell Commands
+                        </h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                    Shell commands that should always be denied
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row gap-2">
+                        <Input
+                          value={newCursorDisallowedCommand}
+                          onChange={(e) => setNewCursorDisallowedCommand(e.target.value)}
+                          placeholder='e.g., "Shell(rm -rf)" or "Shell(sudo)"'
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              if (newCursorDisallowedCommand && !cursorDisallowedCommands.includes(newCursorDisallowedCommand)) {
+                                setCursorDisallowedCommands([...cursorDisallowedCommands, newCursorDisallowedCommand]);
+                                setNewCursorDisallowedCommand('');
+                              }
+                            }
+                          }}
+                          className="flex-1 h-10 touch-manipulation"
+                          style={{ fontSize: '16px' }}
+                        />
+                        <Button
+                          onClick={() => {
+                            if (newCursorDisallowedCommand && !cursorDisallowedCommands.includes(newCursorDisallowedCommand)) {
+                              setCursorDisallowedCommands([...cursorDisallowedCommands, newCursorDisallowedCommand]);
+                              setNewCursorDisallowedCommand('');
+                            }
+                          }}
+                          disabled={!newCursorDisallowedCommand}
+                          size="sm"
+                          className="h-10 px-4 touch-manipulation"
+                        >
+                          <Plus className="w-4 h-4 mr-2 sm:mr-0" />
+                          <span className="sm:hidden">Add Command</span>
+                        </Button>
+                      </div>
+
+                      <div className="space-y-2">
+                        {cursorDisallowedCommands.map(cmd => (
+                          <div key={cmd} className="flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                            <span className="font-mono text-sm text-red-800 dark:text-red-200">
+                              {cmd}
+                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setCursorDisallowedCommands(cursorDisallowedCommands.filter(c => c !== cmd))}
+                              className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        ))}
+                        {cursorDisallowedCommands.length === 0 && (
+                          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
+                        No disallowed shell commands configured
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Help Section */}
+                    <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
+                      <h4 className="font-medium text-purple-900 dark:text-purple-100 mb-2">
+                    Cursor Shell Command Examples:
+                      </h4>
+                      <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
+                        <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"Shell(ls)"</code> - Allow ls command</li>
+                        <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"Shell(git status)"</code> - Allow git status command</li>
+                        <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"Shell(mkdir)"</code> - Allow mkdir command</li>
+                        <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"-f"</code> flag - Skip all permission prompts (dangerous)</li>
+                      </ul>
                     </div>
                   </div>
-
-                  <div className="space-y-2">
-                    {cursorAllowedCommands.map(cmd => (
-                      <div key={cmd} className="flex items-center justify-between bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-3">
-                        <span className="font-mono text-sm text-green-800 dark:text-green-200">
-                          {cmd}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setCursorAllowedCommands(cursorAllowedCommands.filter(c => c !== cmd))}
-                          className="text-green-600 hover:text-green-700 dark:text-green-400 dark:hover:text-green-300"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {cursorAllowedCommands.length === 0 && (
-                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                        No allowed shell commands configured
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Disallowed Shell Commands */}
-                <div className="space-y-4">
-                  <div className="flex items-center gap-3">
-                    <Shield className="w-5 h-5 text-red-500" />
-                    <h3 className="text-lg font-medium text-foreground">
-                      Disallowed Shell Commands
-                    </h3>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    Shell commands that should always be denied
-                  </p>
-                  
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <Input
-                      value={newCursorDisallowedCommand}
-                      onChange={(e) => setNewCursorDisallowedCommand(e.target.value)}
-                      placeholder='e.g., "Shell(rm -rf)" or "Shell(sudo)"'
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          if (newCursorDisallowedCommand && !cursorDisallowedCommands.includes(newCursorDisallowedCommand)) {
-                            setCursorDisallowedCommands([...cursorDisallowedCommands, newCursorDisallowedCommand]);
-                            setNewCursorDisallowedCommand('');
-                          }
-                        }
-                      }}
-                      className="flex-1 h-10 touch-manipulation"
-                      style={{ fontSize: '16px' }}
-                    />
-                    <Button
-                      onClick={() => {
-                        if (newCursorDisallowedCommand && !cursorDisallowedCommands.includes(newCursorDisallowedCommand)) {
-                          setCursorDisallowedCommands([...cursorDisallowedCommands, newCursorDisallowedCommand]);
-                          setNewCursorDisallowedCommand('');
-                        }
-                      }}
-                      disabled={!newCursorDisallowedCommand}
-                      size="sm"
-                      className="h-10 px-4 touch-manipulation"
-                    >
-                      <Plus className="w-4 h-4 mr-2 sm:mr-0" />
-                      <span className="sm:hidden">Add Command</span>
-                    </Button>
-                  </div>
-
-                  <div className="space-y-2">
-                    {cursorDisallowedCommands.map(cmd => (
-                      <div key={cmd} className="flex items-center justify-between bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3">
-                        <span className="font-mono text-sm text-red-800 dark:text-red-200">
-                          {cmd}
-                        </span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setCursorDisallowedCommands(cursorDisallowedCommands.filter(c => c !== cmd))}
-                          className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    ))}
-                    {cursorDisallowedCommands.length === 0 && (
-                      <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                        No disallowed shell commands configured
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Help Section */}
-                <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4">
-                  <h4 className="font-medium text-purple-900 dark:text-purple-100 mb-2">
-                    Cursor Shell Command Examples:
-                  </h4>
-                  <ul className="text-sm text-purple-800 dark:text-purple-200 space-y-1">
-                    <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"Shell(ls)"</code> - Allow ls command</li>
-                    <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"Shell(git status)"</code> - Allow git status command</li>
-                    <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"Shell(mkdir)"</code> - Allow mkdir command</li>
-                    <li><code className="bg-purple-100 dark:bg-purple-800 px-1 rounded">"-f"</code> flag - Skip all permission prompts (dangerous)</li>
-                  </ul>
-                </div>
-              </div>
-            )}
+                )}
               </div>
             )}
 
-            </div>
+          </div>
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 md:p-6 border-t border-border flex-shrink-0 gap-3 pb-safe-area-inset-bottom">
@@ -1723,16 +1723,16 @@ function Settings({ isOpen, onClose, projects = [] }) {
             )}
           </div>
           <div className="flex items-center gap-3 order-1 sm:order-2">
-            <Button 
-              variant="outline" 
-              onClick={onClose} 
+            <Button
+              variant="outline"
+              onClick={onClose}
               disabled={isSaving}
               className="flex-1 sm:flex-none h-10 touch-manipulation"
             >
               Cancel
             </Button>
-            <Button 
-              onClick={saveSettings} 
+            <Button
+              onClick={saveSettings}
               disabled={isSaving}
               className="flex-1 sm:flex-none h-10 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 touch-manipulation"
             >

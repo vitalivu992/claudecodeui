@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { cn } from '../lib/utils';
 
-const Tooltip = ({ 
-  children, 
-  content, 
+const Tooltip = ({
+  children,
+  content,
   position = 'top',
   className = '',
   delay = 500
@@ -61,13 +61,13 @@ const Tooltip = ({
   }
 
   return (
-    <div 
+    <div
       className="relative inline-block"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {children}
-      
+
       {isVisible && (
         <div className={cn(
           'absolute z-50 px-2 py-1 text-xs font-medium text-white bg-gray-900 dark:bg-gray-100 dark:text-gray-900 rounded shadow-lg whitespace-nowrap pointer-events-none',
@@ -76,7 +76,7 @@ const Tooltip = ({
           className
         )}>
           {content}
-          
+
           {/* Arrow */}
           <div className={cn(
             'absolute w-0 h-0 border-4 border-transparent',

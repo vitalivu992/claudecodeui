@@ -5,7 +5,7 @@ function MessageTokenIndicator({
   message,
   showInputOutput = false,
   position = 'bottom-right', // 'top-right', 'top-left', 'bottom-right', 'bottom-left'
-  className = ""
+  className = ''
 }) {
   const [tokenCount, setTokenCount] = useState(0);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -50,11 +50,11 @@ function MessageTokenIndicator({
 
   return (
     <div className={cn(
-      "absolute z-10 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-mono transition-all duration-300",
+      'absolute z-10 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-mono transition-all duration-300',
       positionClasses[position],
-      isAnimating && "scale-110",
-      isUser && "bg-blue-500/20 text-blue-300 border border-blue-500/30",
-      isAssistant && "bg-green-500/20 text-green-300 border border-green-500/30",
+      isAnimating && 'scale-110',
+      isUser && 'bg-blue-500/20 text-blue-300 border border-blue-500/30',
+      isAssistant && 'bg-green-500/20 text-green-300 border border-green-500/30',
       className
     )}>
       {/* Icon based on role */}

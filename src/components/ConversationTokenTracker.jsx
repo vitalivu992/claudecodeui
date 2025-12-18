@@ -8,7 +8,7 @@ function ConversationTokenTracker({
   currentStreamingTokens = 0,
   compact = false,
   showHistory = false,
-  className = ""
+  className = ''
 }) {
   const [aggregateStats, setAggregateStats] = useState({
     totalInputTokens: 0,
@@ -74,7 +74,7 @@ function ConversationTokenTracker({
 
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
+      <div className={cn('flex items-center gap-2', className)}>
         <TokenCounter
           totalTokens={totalTokens}
           streaming={isStreaming}
@@ -88,7 +88,7 @@ function ConversationTokenTracker({
   }
 
   return (
-    <div className={cn("bg-gray-900/50 rounded-lg p-3 space-y-2", className)}>
+    <div className={cn('bg-gray-900/50 rounded-lg p-3 space-y-2', className)}>
       {/* Current conversation stats */}
       <div className="flex items-center justify-between">
         <h4 className="text-white font-medium text-sm">Current Session</h4>

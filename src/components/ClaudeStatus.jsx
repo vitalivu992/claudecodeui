@@ -6,7 +6,7 @@ function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [animationPhase, setAnimationPhase] = useState(0);
   const [fakeTokens, setFakeTokens] = useState(0);
-  
+
   // Update elapsed time every second
   useEffect(() => {
     if (!isLoading) {
@@ -14,7 +14,7 @@ function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
       setFakeTokens(0);
       return;
     }
-    
+
     const startTime = Date.now();
     const timer = setInterval(() => {
       const elapsed = Math.floor((Date.now() - startTime) / 1000);
@@ -22,36 +22,36 @@ function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
       // Simulate token count increasing over time (roughly 30-50 tokens per second)
       setFakeTokens(Math.floor(elapsed * (30 + Math.random() * 20)));
     }, 1000);
-    
+
     return () => clearInterval(timer);
   }, [isLoading]);
-  
+
   // Animate the status indicator
   useEffect(() => {
     if (!isLoading) return;
-    
+
     const timer = setInterval(() => {
       setAnimationPhase(prev => (prev + 1) % 4);
     }, 500);
-    
+
     return () => clearInterval(timer);
   }, [isLoading]);
-  
+
   if (!isLoading) return null;
-  
+
   // Clever action words that cycle
   const actionWords = ['Thinking', 'Processing', 'Analyzing', 'Working', 'Computing', 'Reasoning'];
   const actionIndex = Math.floor(elapsedTime / 3) % actionWords.length;
-  
+
   // Parse status data
   const statusText = status?.text || actionWords[actionIndex];
   const tokens = status?.tokens || fakeTokens;
   const canInterrupt = status?.can_interrupt !== false;
-  
+
   // Animation characters
   const spinners = ['✻', '✹', '✸', '✶'];
   const currentSpinner = spinners[animationPhase];
-  
+
   return (
     <div className="w-full mb-6 animate-in slide-in-from-bottom duration-300">
       <div className="flex items-center justify-between max-w-4xl mx-auto bg-gray-900 dark:bg-gray-950 text-white rounded-lg shadow-lg px-4 py-3">
@@ -59,12 +59,12 @@ function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
           <div className="flex items-center gap-3">
             {/* Animated spinner */}
             <span className={cn(
-              "text-xl transition-all duration-500",
-              animationPhase % 2 === 0 ? "text-blue-400 scale-110" : "text-blue-300"
+              'text-xl transition-all duration-500',
+              animationPhase % 2 === 0 ? 'text-blue-400 scale-110' : 'text-blue-300'
             )}>
               {currentSpinner}
             </span>
-            
+
             {/* Status text - first line */}
             <div className="flex-1">
               <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ function ClaudeStatus({ status, onAbort, isLoading, provider = 'claude' }) {
             </div>
           </div>
         </div>
-        
+
         {/* Interrupt button */}
         {canInterrupt && onAbort && (
           <button

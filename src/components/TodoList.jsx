@@ -18,7 +18,7 @@ const TodoList = ({ todos, isResult = false }) => {
     }
   };
 
-  
+
   return (
     <div className="space-y-1">
       {isResult && (

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScrollArea } from './ui/scroll-area';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Input } from './ui/input';
 
-import { FolderOpen, Folder, Plus, MessageSquare, Clock, ChevronDown, ChevronRight, Edit3, Check, X, Trash2, Settings, FolderPlus, RefreshCw, Sparkles, Edit2, Star, Search } from 'lucide-react';
+import { FolderOpen, Folder, Plus, MessageSquare, Clock, ChevronDown, Check, X, Trash2, FolderPlus, RefreshCw, Edit2, Star, Search } from 'lucide-react';
 import UserMenu from './UserMenu';
 import { cn } from '../lib/utils';
 import ClaudeLogo from './ClaudeLogo';
@@ -15,18 +15,18 @@ import { api } from '../utils/api';
 const formatTimeAgo = (dateString, currentTime) => {
   const date = new Date(dateString);
   const now = currentTime;
-  
+
   // Check if date is valid
   if (isNaN(date.getTime())) {
     return 'Unknown';
   }
-  
+
   const diffInMs = now - date;
   const diffInSeconds = Math.floor(diffInMs / 1000);
   const diffInMinutes = Math.floor(diffInMs / (1000 * 60));
   const diffInHours = Math.floor(diffInMs / (1000 * 60 * 60));
   const diffInDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
-  
+
   if (diffInSeconds < 60) return 'Just now';
   if (diffInMinutes === 1) return '1 min ago';
   if (diffInMinutes < 60) return `${diffInMinutes} mins ago`;
@@ -37,12 +37,12 @@ const formatTimeAgo = (dateString, currentTime) => {
   return date.toLocaleDateString();
 };
 
-function Sidebar({ 
-  projects, 
-  selectedProject, 
-  selectedSession, 
-  onProjectSelect, 
-  onSessionSelect, 
+function Sidebar({
+  projects,
+  selectedProject,
+  selectedSession,
+  onProjectSelect,
+  onSessionSelect,
   onNewSession,
   onSessionDelete,
   onProjectDelete,
@@ -80,8 +80,8 @@ function Sidebar({
   const [projectDropdownFilter, setProjectDropdownFilter] = useState('');
   const [selectedProjectIndex, setSelectedProjectIndex] = useState(-1);
 
-  
-  
+
+
   // Starred projects state - persisted in localStorage
   const [starredProjects, setStarredProjects] = useState(() => {
     try {
@@ -202,7 +202,7 @@ function Sidebar({
         loadSortOrder();
       }
     }, 1000);
-    
+
     return () => {
       window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('projectSortOrderChanged', handleProjectSortOrderChange);
@@ -216,11 +216,11 @@ function Sidebar({
       try {
         // Get recent paths from localStorage
         const recentPaths = JSON.parse(localStorage.getItem('recentProjectPaths') || '[]');
-        
+
         // Load common/home directory paths
         const response = await api.browseFilesystem();
         const data = await response.json();
-        
+
         if (data.suggestions) {
           const homePaths = data.suggestions.map(s => ({ name: s.name, path: s.path }));
           const allPaths = [...recentPaths.map(path => ({ name: path.split('/').pop(), path })), ...homePaths];
@@ -241,29 +241,29 @@ function Sidebar({
   // Handle input change and path filtering with dynamic browsing (ChatInterface pattern + dynamic browsing)
   useEffect(() => {
     const inputValue = newProjectPath.trim();
-    
+
     if (inputValue.length === 0) {
       setShowPathDropdown(false);
       return;
     }
-    
+
     // Show dropdown when user starts typing
     setShowPathDropdown(true);
-    
+
     const updateSuggestions = async () => {
       // First show filtered existing suggestions from pathList
-      const staticFiltered = pathList.filter(pathItem => 
+      const staticFiltered = pathList.filter(pathItem =>
         pathItem.name.toLowerCase().includes(inputValue.toLowerCase()) ||
         pathItem.path.toLowerCase().includes(inputValue.toLowerCase())
       );
 
       // Check if input looks like a directory path for dynamic browsing
       const isDirPath = inputValue.includes('/') && inputValue.length > 1;
-      
+
       if (isDirPath) {
         try {
           let dirToSearch;
-          
+
           // Determine which directory to search
           if (inputValue.endsWith('/')) {
             // User typed "/home/simos/" - search inside /home/simos
@@ -273,12 +273,12 @@ function Sidebar({
             const lastSlashIndex = inputValue.lastIndexOf('/');
             dirToSearch = inputValue.substring(0, lastSlashIndex);
           }
-          
+
           // Only search if we have a valid directory path (not root only)
           if (dirToSearch && dirToSearch !== '') {
             const response = await api.browseFilesystem(dirToSearch);
             const data = await response.json();
-            
+
             if (data.suggestions) {
               // Filter directories that match the current input
               const partialName = inputValue.substring(inputValue.lastIndexOf('/') + 1);
@@ -289,7 +289,7 @@ function Sidebar({
                 })
                 .map(s => ({ name: s.name, path: s.path }))
                 .slice(0, 8);
-              
+
               // Combine static and dynamic suggestions, prioritize dynamic
               const combined = [...dynamicPaths, ...staticFiltered].slice(0, 8);
               setFilteredPaths(combined);
@@ -347,7 +347,7 @@ function Sidebar({
       newStarred.add(projectName);
     }
     setStarredProjects(newStarred);
-    
+
     // Persist to localStorage
     try {
       localStorage.setItem('starredProjects', JSON.stringify([...newStarred]));
@@ -376,13 +376,13 @@ function Sidebar({
     if (allSessions.length === 0) {
       return new Date(0); // Return epoch date for projects with no sessions
     }
-    
+
     // Find the most recent session activity
     const mostRecentDate = allSessions.reduce((latest, session) => {
       const sessionDate = new Date(session.lastActivity);
       return sessionDate > latest ? sessionDate : latest;
     }, new Date(0));
-    
+
     return mostRecentDate;
   };
 
@@ -390,11 +390,11 @@ function Sidebar({
   const sortedProjects = [...projects].sort((a, b) => {
     const aStarred = isProjectStarred(a.name);
     const bStarred = isProjectStarred(b.name);
-    
+
     // First, sort by starred status
     if (aStarred && !bStarred) return -1;
     if (!aStarred && bStarred) return 1;
-    
+
     // For projects with same starred status, sort by selected order
     if (projectSortOrder === 'date') {
       // Sort by most recent activity (descending)
@@ -434,7 +434,7 @@ function Sidebar({
     } catch (error) {
       console.error('Error renaming project:', error);
     }
-    
+
     setEditingProject(null);
     setEditingName('');
   };
@@ -524,20 +524,20 @@ function Sidebar({
     }
 
     setCreatingProject(true);
-    
+
     try {
       const response = await api.createProject(newProjectPath.trim());
 
       if (response.ok) {
         const result = await response.json();
-        
+
         // Save the path to recent paths before clearing
         saveToRecentPaths(newProjectPath.trim());
-        
+
         setShowNewProject(false);
         setNewProjectPath('');
         setShowSuggestions(false);
-        
+
         // Refresh projects to show the new one
         if (window.refreshProjects) {
           window.refreshProjects();
@@ -565,7 +565,7 @@ function Sidebar({
   const loadMoreSessions = async (project) => {
     // Check if we can load more sessions
     const canLoadMore = project.sessionMeta?.hasMore !== false;
-    
+
     if (!canLoadMore || loadingSessions[project.name]) {
       return;
     }
@@ -575,10 +575,10 @@ function Sidebar({
     try {
       const currentSessionCount = (project.sessions?.length || 0) + (additionalSessions[project.name]?.length || 0);
       const response = await api.sessions(project.name, 5, currentSessionCount);
-      
+
       if (response.ok) {
         const result = await response.json();
-        
+
         // Store additional sessions locally
         setAdditionalSessions(prev => ({
           ...prev,
@@ -587,7 +587,7 @@ function Sidebar({
             ...result.sessions
           ]
         }));
-        
+
         // Update project metadata if needed
         if (result.hasMore === false) {
           // Mark that there are no more sessions to load
@@ -660,9 +660,9 @@ function Sidebar({
     }
   };
 
-  
+
   return (
-    <div 
+    <div
       className="h-full flex flex-col bg-card md:select-none"
       style={isPWA && isMobile ? { paddingTop: '44px' } : {}}
     >
@@ -697,11 +697,11 @@ function Sidebar({
             >
               <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''} group-hover:rotate-180 transition-transform duration-300`} />
             </Button>
-            </div>
+          </div>
         </div>
-        
+
         {/* Mobile Header */}
-        <div 
+        <div
           className="md:hidden p-3 border-b border-border"
           style={isPWA && isMobile ? { paddingTop: '16px' } : {}}
         >
@@ -730,11 +730,11 @@ function Sidebar({
               >
                 <RefreshCw className={`w-4 h-4 text-foreground ${isRefreshing ? 'animate-spin' : ''}`} />
               </button>
-              </div>
+            </div>
           </div>
         </div>
       </div>
-      
+
 
       {/* New Project Form */}
       {showNewProject && (
@@ -757,12 +757,12 @@ function Sidebar({
                   if (showPathDropdown && filteredPaths.length > 0) {
                     if (e.key === 'ArrowDown') {
                       e.preventDefault();
-                      setSelectedPathIndex(prev => 
+                      setSelectedPathIndex(prev =>
                         prev < filteredPaths.length - 1 ? prev + 1 : 0
                       );
                     } else if (e.key === 'ArrowUp') {
                       e.preventDefault();
-                      setSelectedPathIndex(prev => 
+                      setSelectedPathIndex(prev =>
                         prev > 0 ? prev - 1 : filteredPaths.length - 1
                       );
                     } else if (e.key === 'Enter') {
@@ -799,7 +799,7 @@ function Sidebar({
                   }
                 }}
               />
-              
+
               {/* Path dropdown (ChatInterface pattern) */}
               {showPathDropdown && filteredPaths.length > 0 && (
                 <div className="absolute top-full left-0 right-0 mt-1 bg-popover border border-border rounded-md shadow-lg max-h-48 overflow-y-auto z-50">
@@ -855,7 +855,7 @@ function Sidebar({
               </Button>
             </div>
           </div>
-          
+
           {/* Mobile Form - Simple Overlay */}
           <div className="md:hidden fixed inset-0 z-[70] bg-black/50 backdrop-blur-sm flex items-end justify-center px-4 pb-24">
             <div className="w-full max-w-sm bg-card rounded-t-lg border-t border-border p-4 space-y-4 animate-in slide-in-from-bottom duration-300">
@@ -876,7 +876,7 @@ function Sidebar({
                   <X className="w-3 h-3" />
                 </button>
               </div>
-              
+
               <div className="space-y-3">
                 <div className="relative">
                   <Input
@@ -890,12 +890,12 @@ function Sidebar({
                       if (showPathDropdown && filteredPaths.length > 0) {
                         if (e.key === 'ArrowDown') {
                           e.preventDefault();
-                          setSelectedPathIndex(prev => 
+                          setSelectedPathIndex(prev =>
                             prev < filteredPaths.length - 1 ? prev + 1 : 0
                           );
                         } else if (e.key === 'ArrowUp') {
                           e.preventDefault();
-                          setSelectedPathIndex(prev => 
+                          setSelectedPathIndex(prev =>
                             prev > 0 ? prev - 1 : filteredPaths.length - 1
                           );
                         } else if (e.key === 'Enter') {
@@ -928,7 +928,7 @@ function Sidebar({
                       WebkitAppearance: 'none'
                     }}
                   />
-                  
+
                   {/* Mobile Path dropdown */}
                   {showPathDropdown && filteredPaths.length > 0 && (
                     <div className="absolute bottom-full left-0 right-0 mb-2 bg-popover border border-border rounded-md shadow-lg max-h-40 overflow-y-auto">
@@ -964,7 +964,7 @@ function Sidebar({
                     </div>
                   )}
                 </div>
-                
+
                 <div className="flex gap-2">
                   <Button
                     onClick={cancelNewProject}
@@ -983,14 +983,14 @@ function Sidebar({
                   </Button>
                 </div>
               </div>
-              
+
               {/* Safe area for mobile */}
               <div className="h-4" />
             </div>
           </div>
         </div>
       )}
-      
+
       {/* Project Dropdown */}
       {projects.length > 0 && !isLoading && (
         <div className="px-3 md:px-4 py-2 border-b border-border">
@@ -1095,7 +1095,7 @@ function Sidebar({
           </div>
         </div>
       )}
-      
+
       {/* Projects List */}
       <ScrollArea className="flex-1 md:px-2 md:py-3 overflow-y-auto overscroll-contain">
         <div className="md:space-y-1 pb-safe-area-inset-bottom">
@@ -1153,7 +1153,7 @@ function Sidebar({
                           <div className="text-xs text-muted-foreground">
                             {project.fullPath !== project.displayName && (
                               <span title={project.fullPath}>
-                                {project.fullPath.length > 25 ? '...' + project.fullPath.slice(-22) : project.fullPath}
+                                {project.fullPath.length > 25 ? `...${project.fullPath.slice(-22)}` : project.fullPath}
                               </span>
                             )}
                           </div>
@@ -1181,7 +1181,7 @@ function Sidebar({
                         <div className="text-xs text-muted-foreground">
                           {project.fullPath !== project.displayName && (
                             <span title={project.fullPath}>
-                              {project.fullPath.length > 25 ? '...' + project.fullPath.slice(-22) : project.fullPath}
+                              {project.fullPath.length > 25 ? `...${project.fullPath.slice(-22)}` : project.fullPath}
                             </span>
                           )}
                         </div>
@@ -1242,44 +1242,44 @@ function Sidebar({
                         const messageCount = session.messageCount || 0;
 
                         return (
-                        <div key={session.id} className="group relative">
-                          {/* Active session indicator dot */}
-                          {isActive && (
-                            <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1">
-                              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                            </div>
-                          )}
-                          {/* Mobile Session Item */}
-                          <div className="md:hidden">
-                            <div
-                              className={cn(
-                                "p-2 mx-3 my-0.5 rounded-md bg-card border active:scale-[0.98] transition-all duration-150 relative",
-                                selectedSession?.id === session.id ? "bg-primary/5 border-primary/20" :
-                                isActive ? "border-green-500/30 bg-green-50/5 dark:bg-green-900/5" : "border-border/30"
-                              )}
-                              onClick={() => {
-                                onSessionSelect(session);
-                              }}
-                              onTouchEnd={handleTouchClick(() => {
-                                onSessionSelect(session);
-                              })}
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className={cn(
-                                  "w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0",
-                                  selectedSession?.id === session.id ? "bg-primary/10" : "bg-muted/50"
-                                )}>
-                                  {isCursorSession ? (
-                                    <CursorLogo className="w-3 h-3" />
-                                  ) : (
-                                    <ClaudeLogo className="w-3 h-3" />
-                                  )}
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="text-xs font-medium truncate text-foreground">
-                                    {sessionName}
+                          <div key={session.id} className="group relative">
+                            {/* Active session indicator dot */}
+                            {isActive && (
+                              <div className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1">
+                                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                              </div>
+                            )}
+                            {/* Mobile Session Item */}
+                            <div className="md:hidden">
+                              <div
+                                className={cn(
+                                  'p-2 mx-3 my-0.5 rounded-md bg-card border active:scale-[0.98] transition-all duration-150 relative',
+                                  selectedSession?.id === session.id ? 'bg-primary/5 border-primary/20' :
+                                    isActive ? 'border-green-500/30 bg-green-50/5 dark:bg-green-900/5' : 'border-border/30'
+                                )}
+                                onClick={() => {
+                                  onSessionSelect(session);
+                                }}
+                                onTouchEnd={handleTouchClick(() => {
+                                  onSessionSelect(session);
+                                })}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className={cn(
+                                    'w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0',
+                                    selectedSession?.id === session.id ? 'bg-primary/10' : 'bg-muted/50'
+                                  )}>
+                                    {isCursorSession ? (
+                                      <CursorLogo className="w-3 h-3" />
+                                    ) : (
+                                      <ClaudeLogo className="w-3 h-3" />
+                                    )}
                                   </div>
-                                <div className="flex items-center gap-1 mt-0.5">
+                                  <div className="min-w-0 flex-1">
+                                    <div className="text-xs font-medium truncate text-foreground">
+                                      {sessionName}
+                                    </div>
+                                    <div className="flex items-center gap-1 mt-0.5">
                                       <Clock className="w-2.5 h-2.5 text-muted-foreground" />
                                       <span className="text-xs text-muted-foreground">
                                         {formatTimeAgo(sessionTime, currentTime)}
@@ -1289,14 +1289,14 @@ function Sidebar({
                                           {messageCount}
                                         </Badge>
                                       )}
-                                  {/* Provider tiny icon */}
-                                  <span className="ml-1 opacity-70">
-                                    {isCursorSession ? (
-                                      <CursorLogo className="w-3 h-3" />
-                                    ) : (
-                                      <ClaudeLogo className="w-3 h-3" />
-                                    )}
-                                  </span>
+                                      {/* Provider tiny icon */}
+                                      <span className="ml-1 opacity-70">
+                                        {isCursorSession ? (
+                                          <CursorLogo className="w-3 h-3" />
+                                        ) : (
+                                          <ClaudeLogo className="w-3 h-3" />
+                                        )}
+                                      </span>
                                     </div>
                                   </div>
                                   {/* Mobile delete button - only for Claude sessions */}
@@ -1321,8 +1321,8 @@ function Sidebar({
                               <Button
                                 variant="ghost"
                                 className={cn(
-                                  "w-full justify-start p-2 h-auto font-normal text-left hover:bg-accent/50 transition-colors duration-200",
-                                  selectedSession?.id === session.id && "bg-accent text-accent-foreground"
+                                  'w-full justify-start p-2 h-auto font-normal text-left hover:bg-accent/50 transition-colors duration-200',
+                                  selectedSession?.id === session.id && 'bg-accent text-accent-foreground'
                                 )}
                                 onClick={() => onSessionSelect(session)}
                                 onTouchEnd={handleTouchClick(() => onSessionSelect(session))}
@@ -1361,79 +1361,79 @@ function Sidebar({
                               </Button>
                               {/* Desktop hover buttons - only for Claude sessions */}
                               {!isCursorSession && (
-                              <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
-                                {editingSession === session.id ? (
-                                  <>
-                                    <input
-                                      type="text"
-                                      value={editingSessionName}
-                                      onChange={(e) => setEditingSessionName(e.target.value)}
-                                      onKeyDown={(e) => {
-                                        e.stopPropagation();
-                                        if (e.key === 'Enter') {
+                                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-200">
+                                  {editingSession === session.id ? (
+                                    <>
+                                      <input
+                                        type="text"
+                                        value={editingSessionName}
+                                        onChange={(e) => setEditingSessionName(e.target.value)}
+                                        onKeyDown={(e) => {
+                                          e.stopPropagation();
+                                          if (e.key === 'Enter') {
+                                            updateSessionSummary(project.name, session.id, editingSessionName);
+                                          } else if (e.key === 'Escape') {
+                                            setEditingSession(null);
+                                            setEditingSessionName('');
+                                          }
+                                        }}
+                                        onClick={(e) => e.stopPropagation()}
+                                        className="w-32 px-2 py-1 text-xs border border-border rounded bg-background focus:outline-none focus:ring-1 focus:ring-primary"
+                                        autoFocus
+                                      />
+                                      <button
+                                        className="w-6 h-6 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/40 rounded flex items-center justify-center"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           updateSessionSummary(project.name, session.id, editingSessionName);
-                                        } else if (e.key === 'Escape') {
+                                        }}
+                                        title="Save"
+                                      >
+                                        <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                      </button>
+                                      <button
+                                        className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
                                           setEditingSession(null);
                                           setEditingSessionName('');
-                                        }
-                                      }}
-                                      onClick={(e) => e.stopPropagation()}
-                                      className="w-32 px-2 py-1 text-xs border border-border rounded bg-background focus:outline-none focus:ring-1 focus:ring-primary"
-                                      autoFocus
-                                    />
-                                    <button
-                                      className="w-6 h-6 bg-green-50 hover:bg-green-100 dark:bg-green-900/20 dark:hover:bg-green-900/40 rounded flex items-center justify-center"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        updateSessionSummary(project.name, session.id, editingSessionName);
-                                      }}
-                                      title="Save"
-                                    >
-                                      <Check className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                    </button>
-                                    <button
-                                      className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingSession(null);
-                                        setEditingSessionName('');
-                                      }}
-                                      title="Cancel"
-                                    >
-                                      <X className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-                                    </button>
-                                  </>
-                                ) : (
-                                  <>
-                                    {/* Edit button */}
-                                    <button
-                                      className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setEditingSession(session.id);
-                                        setEditingSessionName(session.summary || 'New Session');
-                                      }}
-                                      title="Manually edit session name"
-                                    >
-                                      <Edit2 className="w-3 h-3 text-gray-600 dark:text-gray-400" />
-                                    </button>
-                                    {/* Delete button */}
-                                    <button
-                                      className="w-6 h-6 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded flex items-center justify-center"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        deleteSession(project.name, session.id);
-                                      }}
-                                      title="Delete this session permanently"
-                                    >
-                                      <Trash2 className="w-3 h-3 text-red-600 dark:text-red-400" />
-                                    </button>
-                                  </>
-                                )}
-                              </div>
+                                        }}
+                                        title="Cancel"
+                                      >
+                                        <X className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                                      </button>
+                                    </>
+                                  ) : (
+                                    <>
+                                      {/* Edit button */}
+                                      <button
+                                        className="w-6 h-6 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/20 dark:hover:bg-gray-900/40 rounded flex items-center justify-center"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setEditingSession(session.id);
+                                          setEditingSessionName(session.summary || 'New Session');
+                                        }}
+                                        title="Manually edit session name"
+                                      >
+                                        <Edit2 className="w-3 h-3 text-gray-600 dark:text-gray-400" />
+                                      </button>
+                                      {/* Delete button */}
+                                      <button
+                                        className="w-6 h-6 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded flex items-center justify-center"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          deleteSession(project.name, session.id);
+                                        }}
+                                        title="Delete this session permanently"
+                                      >
+                                        <Trash2 className="w-3 h-3 text-red-600 dark:text-red-400" />
+                                      </button>
+                                    </>
+                                  )}
+                                </div>
                               )}
                             </div>
-                        </div>
+                          </div>
                         );
                       })
                     )}
@@ -1501,7 +1501,7 @@ function Sidebar({
           )}
         </div>
       </ScrollArea>
-      
+
       {/* Version Update Notification */}
       {updateAvailable && (
         <div className="md:p-2 border-t border-border/50 flex-shrink-0">
@@ -1524,7 +1524,7 @@ function Sidebar({
               </div>
             </Button>
           </div>
-          
+
           {/* Mobile Version Notification */}
           <div className="md:hidden p-3 pb-2">
             <button
@@ -1545,7 +1545,7 @@ function Sidebar({
           </div>
         </div>
       )}
-      
+
       {/* User Menu Section */}
       <div className="md:p-2 md:border-t md:border-border flex-shrink-0">
         <UserMenu onShowSettings={onShowSettings} isMobile={isMobile} />

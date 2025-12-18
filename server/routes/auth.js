@@ -74,7 +74,7 @@ router.post('/pam-login', async (req, res) => {
       user: {
         id: user.id,
         username: user.username,
-        userInfo: userInfo
+        userInfo
       },
       token
     });

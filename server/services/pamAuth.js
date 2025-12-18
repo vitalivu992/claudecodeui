@@ -1,5 +1,4 @@
 import { spawn } from 'child_process';
-import { promisify } from 'util';
 
 class PAMAuthService {
   constructor() {
@@ -32,17 +31,6 @@ class PAMAuthService {
         stdio: ['pipe', 'pipe', 'pipe']
       });
 
-      let output = '';
-      let error = '';
-
-      child.stdout.on('data', (data) => {
-        output += data.toString();
-      });
-
-      child.stderr.on('data', (data) => {
-        error += data.toString();
-      });
-
       child.on('close', (code) => {
         resolve(code === 0);
       });
@@ -52,7 +40,7 @@ class PAMAuthService {
       });
 
       // Send password to stdin
-      child.stdin.write(password + '\n');
+      child.stdin.write(`${password}\n`);
       child.stdin.end();
 
       // Timeout after 5 seconds
@@ -79,7 +67,7 @@ class PAMAuthService {
       });
 
       return child.exitCode === 0;
-    } catch (error) {
+    } catch (_error) {
       return false;
     }
   }

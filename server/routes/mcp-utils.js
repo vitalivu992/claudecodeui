@@ -1,7 +1,7 @@
 /**
  * MCP UTILITIES API ROUTES
  * ========================
- * 
+ *
  * API endpoints for MCP server detection and configuration utilities.
  * These endpoints expose centralized MCP detection functionality.
  */
@@ -17,16 +17,16 @@ const router = express.Router();
  * Get all configured MCP servers
  */
 router.get('/all-servers', async (req, res) => {
-    try {
-        const result = await getAllMCPServers();
-        res.json(result);
-    } catch (error) {
-        console.error('MCP servers detection error:', error);
-        res.status(500).json({
-            error: 'Failed to get MCP servers',
-            message: error.message
-        });
-    }
+  try {
+    const result = await getAllMCPServers();
+    res.json(result);
+  } catch (error) {
+    console.error('MCP servers detection error:', error);
+    res.status(500).json({
+      error: 'Failed to get MCP servers',
+      message: error.message
+    });
+  }
 });
 
 export default router;

@@ -32,7 +32,7 @@ function FileEditor({ file, projectPath }) {
     update(decorations, tr) {
       decorations = decorations.map(tr.changes);
 
-      for (let effect of tr.effects) {
+      for (const effect of tr.effects) {
         if (effect.is(diffEffect)) {
           decorations = effect.value;
         }
@@ -264,7 +264,7 @@ function FileEditor({ file, projectPath }) {
             <button
               onClick={() => setShowDiff(!showDiff)}
               className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white rounded-md hover:bg-gray-100 dark:hover:bg-gray-800"
-              title={showDiff ? "Hide diff highlighting" : "Show diff highlighting"}
+              title={showDiff ? 'Hide diff highlighting' : 'Show diff highlighting'}
             >
               {showDiff ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
             </button>
@@ -332,7 +332,7 @@ function FileEditor({ file, projectPath }) {
           height="100%"
           style={{
             fontSize: '14px',
-            height: '100%',
+            height: '100%'
           }}
           basicSetup={{
             lineNumbers: true,
@@ -344,7 +344,7 @@ function FileEditor({ file, projectPath }) {
             closeBrackets: true,
             autocompletion: true,
             highlightSelectionMatches: true,
-            searchKeymap: true,
+            searchKeymap: true
           }}
         />
       </div>

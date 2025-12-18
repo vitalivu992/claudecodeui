@@ -21,7 +21,7 @@ function FileTree({ selectedProject, onFileOpen }) {
     }
   }, [selectedProject]);
 
-  
+
   // Filter files based on search query
   useEffect(() => {
     if (!searchQuery.trim()) {
@@ -71,14 +71,14 @@ function FileTree({ selectedProject, onFileOpen }) {
     setLoading(true);
     try {
       const response = await api.getFiles(selectedProject.name);
-      
+
       if (!response.ok) {
         const errorText = await response.text();
         console.error('❌ File fetch failed:', response.status, errorText);
         setFiles([]);
         return;
       }
-      
+
       const data = await response.json();
       setFiles(data);
     } catch (error) {
@@ -99,15 +99,15 @@ function FileTree({ selectedProject, onFileOpen }) {
     setExpandedDirs(newExpanded);
   };
 
-  
-  
+
+
   const renderFileTree = (items, level = 0) => {
     return items.map((item) => (
       <div key={item.path} className="select-none">
         <Button
           variant="ghost"
           className={cn(
-            "w-full justify-start p-1 h-auto font-normal text-left hover:bg-accent",
+            'w-full justify-start p-1 h-auto font-normal text-left hover:bg-accent'
           )}
           style={{ paddingLeft: `${level * 12 + 6}px` }}
           onClick={() => {
@@ -179,7 +179,7 @@ function FileTree({ selectedProject, onFileOpen }) {
     }
   };
 
-  
+
   if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -221,7 +221,7 @@ function FileTree({ selectedProject, onFileOpen }) {
           )}
         </div>
       </div>
-      
+
       <ScrollArea className="flex-1 p-4">
         {files.length === 0 ? (
           <div className="text-center py-8">

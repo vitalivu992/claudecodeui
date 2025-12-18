@@ -106,7 +106,7 @@ export const ThemeProvider = ({ children }) => {
     isDarkMode,
     theme,
     setTheme: setThemeMode,
-    toggleDarkMode,
+    toggleDarkMode
   };
 
   return (

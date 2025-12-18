@@ -30,52 +30,32 @@ const initializeDatabase = async () => {
 const userDb = {
   // Check if any users exist
   hasUsers: () => {
-    try {
-      const row = db.prepare('SELECT COUNT(*) as count FROM users').get();
-      return row.count > 0;
-    } catch (err) {
-      throw err;
-    }
+    const row = db.prepare('SELECT COUNT(*) as count FROM users').get();
+    return row.count > 0;
   },
 
   // Create a new user (PAM only)
   createUser: (username) => {
-    try {
-      const stmt = db.prepare('INSERT INTO users (username) VALUES (?)');
-      const result = stmt.run(username);
-      return { id: result.lastInsertRowid, username };
-    } catch (err) {
-      throw err;
-    }
+    const stmt = db.prepare('INSERT INTO users (username) VALUES (?)');
+    const result = stmt.run(username);
+    return { id: result.lastInsertRowid, username };
   },
 
   // Get user by username
   getUserByUsername: (username) => {
-    try {
-      const row = db.prepare('SELECT * FROM users WHERE username = ? AND is_active = 1').get(username);
-      return row;
-    } catch (err) {
-      throw err;
-    }
+    const row = db.prepare('SELECT * FROM users WHERE username = ? AND is_active = 1').get(username);
+    return row;
   },
 
   // Update last login time
   updateLastLogin: (userId) => {
-    try {
-      db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(userId);
-    } catch (err) {
-      throw err;
-    }
+    db.prepare('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?').run(userId);
   },
 
   // Get user by ID
   getUserById: (userId) => {
-    try {
-      const row = db.prepare('SELECT id, username, created_at, last_login FROM users WHERE id = ? AND is_active = 1').get(userId);
-      return row;
-    } catch (err) {
-      throw err;
-    }
+    const row = db.prepare('SELECT id, username, created_at, last_login FROM users WHERE id = ? AND is_active = 1').get(userId);
+    return row;
   }
 };
 

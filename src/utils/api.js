@@ -1,21 +1,21 @@
 // Utility function for authenticated API calls
 export const authenticatedFetch = (url, options = {}) => {
   const token = localStorage.getItem('auth-token');
-  
+
   const defaultHeaders = {
-    'Content-Type': 'application/json',
+    'Content-Type': 'application/json'
   };
-  
+
   if (token) {
     defaultHeaders['Authorization'] = `Bearer ${token}`;
   }
-  
+
   return fetch(url, {
     ...options,
     headers: {
       ...defaultHeaders,
-      ...options.headers,
-    },
+      ...options.headers
+    }
   });
 };
 
@@ -27,17 +27,17 @@ export const api = {
     pamLogin: (username, password) => fetch('/api/auth/pam-login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify({ username, password })
     }),
     pamStatus: () => fetch('/api/auth/pam-status'),
     user: () => authenticatedFetch('/api/auth/user'),
-    logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' }),
+    logout: () => authenticatedFetch('/api/auth/logout', { method: 'POST' })
   },
-  
+
   // Protected endpoints
   config: () => authenticatedFetch('/api/config'),
   projects: () => authenticatedFetch('/api/projects'),
-  sessions: (projectName, limit = 5, offset = 0) => 
+  sessions: (projectName, limit = 5, offset = 0) =>
     authenticatedFetch(`/api/projects/${projectName}/sessions?limit=${limit}&offset=${offset}`),
   sessionMessages: (projectName, sessionId, limit = null, offset = 0) => {
     const params = new URLSearchParams();
@@ -52,59 +52,59 @@ export const api = {
   renameProject: (projectName, displayName) =>
     authenticatedFetch(`/api/projects/${projectName}/rename`, {
       method: 'PUT',
-      body: JSON.stringify({ displayName }),
+      body: JSON.stringify({ displayName })
     }),
   deleteSession: (projectName, sessionId) =>
     authenticatedFetch(`/api/projects/${projectName}/sessions/${sessionId}`, {
-      method: 'DELETE',
+      method: 'DELETE'
     }),
   updateSessionSummary: (projectName, sessionId, summary) =>
     authenticatedFetch(`/api/projects/${projectName}/sessions/${sessionId}/summary`, {
       method: 'PUT',
-      body: JSON.stringify({ summary }),
+      body: JSON.stringify({ summary })
     }),
   deleteProject: (projectName) =>
     authenticatedFetch(`/api/projects/${projectName}`, {
-      method: 'DELETE',
+      method: 'DELETE'
     }),
   createProject: (path) =>
     authenticatedFetch('/api/projects/create', {
       method: 'POST',
-      body: JSON.stringify({ path }),
+      body: JSON.stringify({ path })
     }),
   readFile: (projectName, filePath) =>
     authenticatedFetch(`/api/projects/${projectName}/file?filePath=${encodeURIComponent(filePath)}`),
   saveFile: (projectName, filePath, content) =>
     authenticatedFetch(`/api/projects/${projectName}/file`, {
       method: 'PUT',
-      body: JSON.stringify({ filePath, content }),
+      body: JSON.stringify({ filePath, content })
     }),
   getFiles: (projectName) =>
     authenticatedFetch(`/api/projects/${projectName}/files`),
   transcribe: (formData) => {
     const token = localStorage.getItem('auth-token');
     const headers = {};
-    
+
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    
+
     return fetch('/api/transcribe', {
       method: 'POST',
       body: formData,
-      headers, // Let browser set Content-Type for FormData
+      headers // Let browser set Content-Type for FormData
     });
   },
 
-    
+
   // Browse filesystem for project suggestions
   browseFilesystem: (dirPath = null) => {
     const params = new URLSearchParams();
     if (dirPath) params.append('path', dirPath);
-    
+
     return authenticatedFetch(`/api/browse-filesystem?${params}`);
   },
 
   // Generic GET method for any endpoint
-  get: (endpoint) => authenticatedFetch(`/api${endpoint}`),
+  get: (endpoint) => authenticatedFetch(`/api${endpoint}`)
 };

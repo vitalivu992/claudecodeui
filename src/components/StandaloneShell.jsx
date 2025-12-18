@@ -4,7 +4,7 @@ import Shell from './Shell.jsx';
 /**
  * Generic Shell wrapper that can be used in tabs, modals, and other contexts.
  * Provides a flexible API for both standalone and session-based usage.
- * 
+ *
  * @param {Object} project - Project object with name, fullPath/path, displayName
  * @param {Object} session - Session object (optional, for tab usage)
  * @param {string} command - Initial command to run (optional)
@@ -29,7 +29,7 @@ function StandaloneShell({
   onComplete = null,
   onClose = null,
   title = null,
-  className = "",
+  className = '',
   showHeader = true,
   compact = false
 }) {

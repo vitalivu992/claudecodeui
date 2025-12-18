@@ -110,7 +110,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('auth-token');
-    
+
     // Optional: Call logout endpoint for logging
     if (token) {
       api.auth.logout().catch(error => {

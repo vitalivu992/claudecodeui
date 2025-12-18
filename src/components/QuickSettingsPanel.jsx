@@ -34,7 +34,7 @@ const QuickSettingsPanel = ({
     return localStorage.getItem('whisperMode') || 'default';
   });
   const { theme, isDarkMode } = useTheme();
-  
+
   useEffect(() => {
     setLocalIsOpen(isOpen);
   }, [isOpen]);
@@ -45,7 +45,7 @@ const QuickSettingsPanel = ({
     onToggle(newState);
   };
 
-  
+
   return (
     <>
       {/* Pull Tab */}
@@ -104,12 +104,12 @@ const QuickSettingsPanel = ({
                 <ThemeToggle />
               </div>
 
-              </div>
+            </div>
 
             {/* Tool Display Settings */}
             <div className="space-y-2">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Tool Display</h4>
-              
+
               <label className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
                 <span className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
                   <Maximize2 className="h-4 w-4 text-gray-600 dark:text-gray-400" />
@@ -139,7 +139,7 @@ const QuickSettingsPanel = ({
             {/* View Options */}
             <div className="space-y-2">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">View Options</h4>
-              
+
               <label className="flex items-center justify-between p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
                 <span className="flex items-center gap-2 text-sm text-gray-900 dark:text-white">
                   <ArrowDown className="h-4 w-4 text-gray-600 dark:text-gray-400" />
@@ -244,7 +244,7 @@ const QuickSettingsPanel = ({
             {/* Whisper Dictation Settings - HIDDEN */}
             <div className="space-y-2" style={{ display: 'none' }}>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-2">Whisper Dictation</h4>
-              
+
               <div className="space-y-2">
                 <label className="flex items-start p-3 rounded-lg bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer transition-colors border border-transparent hover:border-gray-300 dark:hover:border-gray-600">
                   <input

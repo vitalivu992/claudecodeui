@@ -8,7 +8,7 @@ function TokenCounter({
   streaming = false,
   compact = false,
   showDetails = false,
-  className = ""
+  className = ''
 }) {
   const [animatedTotal, setAnimatedTotal] = useState(0);
   const [prevTotal, setPrevTotal] = useState(0);
@@ -42,7 +42,7 @@ function TokenCounter({
 
   if (compact) {
     return (
-      <div className={cn("flex items-center gap-1 text-xs", className)}>
+      <div className={cn('flex items-center gap-1 text-xs', className)}>
         <span className="text-gray-400">⚒</span>
         <span className="text-gray-300 font-mono">{animatedTotal.toLocaleString()}</span>
         {streaming && (
@@ -53,7 +53,7 @@ function TokenCounter({
   }
 
   return (
-    <div className={cn("flex flex-col space-y-1", className)}>
+    <div className={cn('flex flex-col space-y-1', className)}>
       {/* Main total display */}
       <div className="flex items-center gap-2">
         <span className="text-gray-400 text-sm">Tokens</span>
