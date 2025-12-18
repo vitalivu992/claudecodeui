@@ -37,6 +37,7 @@ function ResizablePanels({
   onSidebarToggle,
 }) {
   const [leftActiveTab, setLeftActiveTab] = useState(() => (activeTab === 'git' ? 'git' : 'files'));
+  const [rightActiveTab, setRightActiveTab] = useState('chat');
   const [editingFile, setEditingFile] = useState(null);
   const [diffFile, setDiffFile] = useState(null);
   const [diffContent, setDiffContent] = useState(null);
@@ -63,12 +64,14 @@ function ResizablePanels({
       diffInfo: diffInfo,
     };
     setEditingFile(file);
+    setRightActiveTab('editor');
     if (setActiveTab) setActiveTab('files');
   };
 
   const handleShowDiff = (filePath, diff) => {
     setDiffFile(filePath);
     setDiffContent(diff);
+    setRightActiveTab('diff');
     if (setActiveTab) setActiveTab('git');
   };
 
@@ -308,40 +311,41 @@ function ResizablePanels({
                           <h3 className="text-lg font-medium mb-2">No File Open</h3>
                           <p className="text-sm">Select a file from the file tree to open it in the editor</p>
                         </div>
-                      )
-                    ) : (
-                      <div className="h-full">
-                        {diffFile && diffContent ? (
-                          <ErrorBoundary showDetails={true}>
-                            <div className="h-full flex flex-col">
-                              <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800">
-                                <div className="flex items-center justify-between">
-                                  <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                                    {diffFile}
-                                  </h3>
-                                </div>
-                              </div>
-                              <div className="flex-1 overflow-auto">
-                                <DiffViewer
-                                  diff={diffContent}
-                                  fileName={diffFile}
-                                  isMobile={isMobile}
-                                  wrapText={true}
-                                />
-                              </div>
-                            </div>
-                          </ErrorBoundary>
-                        ) : (
-                          <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                            <div className="text-center">
-                              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                              </svg>
-                              <h3 className="text-lg font-medium mb-2">No File Selected</h3>
-                              <p className="text-sm">Select a file from Source Control to view its diff</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+                {rightActiveTab === 'diff' && (
+                  <div className="h-full">
+                    {diffFile && diffContent ? (
+                      <ErrorBoundary showDetails={true}>
+                        <div className="h-full flex flex-col">
+                          <div className="border-b border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-800">
+                            <div className="flex items-center justify-between">
+                              <h3 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+                                {diffFile}
+                              </h3>
                             </div>
                           </div>
-                        )}
+                          <div className="flex-1 overflow-auto">
+                            <DiffViewer
+                              diff={diffContent}
+                              fileName={diffFile}
+                              isMobile={isMobile}
+                              wrapText={true}
+                            />
+                          </div>
+                        </div>
+                      </ErrorBoundary>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-gray-500 dark:text-gray-400">
+                        <div className="text-center">
+                          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                          </svg>
+                          <h3 className="text-lg font-medium mb-2">No File Selected</h3>
+                          <p className="text-sm">Select a file from Source Control to view its diff</p>
+                        </div>
                       </div>
                     )}
                   </div>
